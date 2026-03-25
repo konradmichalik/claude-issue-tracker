@@ -21,4 +21,11 @@ if [ -L "$target" ]; then
   echo "  Removed skill: i-issue-management"
 fi
 
+# Board
+target="$CLAUDE_DIR/board"
+if [ -L "$target" ]; then
+  rm "$target"
+  echo "  Removed board: board/"
+fi
+
 echo "Done. Commands removed."

@@ -19,4 +19,14 @@ mkdir -p "$CLAUDE_DIR/skills"
 ln -sfn "$SCRIPT_DIR/.claude/skills/i-issue-management" "$CLAUDE_DIR/skills/i-issue-management"
 echo "  Linked skill: i-issue-management"
 
-echo "Done. Commands available: /i:req, /i:aws, /i:note, /i:dod, /i:issues"
+# Board
+ln -sfn "$SCRIPT_DIR/board" "$CLAUDE_DIR/board"
+echo "  Linked board: board/"
+
+# Install board dependencies if needed
+if [ ! -d "$SCRIPT_DIR/board/node_modules" ]; then
+  echo "  Installing board dependencies..."
+  (cd "$SCRIPT_DIR/board" && npm install --silent)
+fi
+
+echo "Done. Commands available: /i:req, /i:aws, /i:note, /i:dod, /i:issues, /i:board"
