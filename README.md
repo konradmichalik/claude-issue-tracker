@@ -28,6 +28,21 @@ i:req  ──>  i:aws (optional)  ──>  Implementation  ──>  i:dod
 3. **Implement** — Work on the ticket, add notes with `/i:note` as you go
 4. **`/i:dod PROJ-123`** — Verify: checks each requirement against the code with file references
 
+## Kanban Board
+
+Visualize and manage issues with an interactive web UI. Start with `/i:board` or run `node board/server.js` to open the board in your browser.
+
+**Features:**
+- 4-column Kanban layout (Backlog, In Progress, Review, Done)
+- Drag and drop to change status
+- Detail view with full issue information
+- Checkbox toggling from the board
+- Filter and search across issues
+- Light and dark mode toggle
+- Live refresh to see updates across sessions
+
+Requires Node.js and Express.
+
 ## Installation
 
 ```bash

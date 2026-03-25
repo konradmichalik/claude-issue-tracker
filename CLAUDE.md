@@ -15,9 +15,13 @@ Local issue tracker for Claude Code — Jira-integrated, Markdown-based. Structu
 │   ├── i:dod.md        # Definition of Done check
 │   ├── i:issues.md     # List all issues
 │   └── i:breadcrumb.md # Session checkpoint
-└── skills/
-    └── i-issue-management/
-        └── skill.md    # Shared format, lifecycle, conventions
+├── skills/
+│   └── i-issue-management/
+│       └── skill.md    # Shared format, lifecycle, conventions
+└── board/              # Kanban board web UI (Express + Vanilla JS)
+    ├── server.js
+    ├── lib/issues.js
+    └── public/
 ```
 
 ## Commands
@@ -30,6 +34,7 @@ Local issue tracker for Claude Code — Jira-integrated, Markdown-based. Structu
 | `/i:dod <issue>` | Definition of Done check — verify requirements against codebase |
 | `/i:issues` | List all local issue documents with status and progress |
 | `/i:breadcrumb <issue> [checkpoint]` | Save session checkpoint — survives context compression and session restarts |
+| `/i:board` | Open Kanban board in browser — visualize issues, drag & drop status, filter, detail view |
 
 ## Issue Document Lifecycle
 
