@@ -1,6 +1,6 @@
-# i:req
+# i:new
 
-Initial requirements intake for a Jira ticket — gather all information, assess scope, and persist as issue document.
+Create a new issue document for a Jira ticket — gather all information, assess scope, and persist.
 
 ## Arguments
 
@@ -11,12 +11,7 @@ Initial requirements intake for a Jira ticket — gather all information, assess
 
 ### If issue document already exists (`.claude/issues/<issue-key>.md`)
 
-1. Read the existing document
-2. Show current status and requirements summary
-3. Ask the user what to do:
-   - Continue with implementation plan
-   - Update requirements (use `/i:note` instead)
-   - Start effort estimation (`/i:aws <issue-key>`)
+1. **Abbruch**: `Issue-Dokument für <issue-key> existiert bereits. Nutze /i:resume <issue-key> um daran weiterzuarbeiten.`
 
 ### If no issue document exists (new ticket)
 
@@ -54,7 +49,7 @@ Initial requirements intake for a Jira ticket — gather all information, assess
    - **Estimated scope**: Small (< 4h), Medium (4-16h), Large (> 16h)
    - **Recommendation**:
      - **Small/Medium with clear requirements** → Direct implementation (create plan)
-     - **Large or unclear scope** → Effort estimation first (`/i:aws <issue-key>`)
+     - **Large or unclear scope** → Effort estimation first (`/i:estimate <issue-key>`)
      - **Missing critical info** → Resolve questions first, then re-assess
 
    Ask the user to confirm the recommended path before proceeding.
