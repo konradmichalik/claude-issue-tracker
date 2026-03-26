@@ -19,6 +19,11 @@ async function fetchIssues() {
 
 fetchIssues()
 
+fetch('/api/project').then(r => r.json()).then(({ name }) => {
+  document.getElementById('project-name').textContent = name
+  document.title = `Issue Board — ${name}`
+})
+
 // ── Helpers ──
 
 function relativeTime(dateStr) {
@@ -195,15 +200,19 @@ document.addEventListener('click', async e => {
   const res = await fetch(`/api/issues/${key}/raw`)
   const md = await res.text()
 
-  // Strip frontmatter for display
-  const body = md.replace(/^---\n[\s\S]*?\n---\n*/, '')
+  // Strip frontmatter and first heading (already shown in modal header)
+  const body = md
+    .replace(/^---\n[\s\S]*?\n---\n*/, '')
+    .replace(/^#[^\n]*\n+/, '')
+    .replace(/^\*\*?Status:\*?\*?[^\n]*\n*/m, '')
+    .replace(/^Status:[^\n]*\n*/m, '')
   modalBody.innerHTML = marked.parse(body)
 
   // Make ONLY Anforderungen checkboxes interactive
   const headings = modalBody.querySelectorAll('h2')
   let anforderungenSection = null
   for (const h of headings) {
-    if (h.textContent.trim() === 'Anforderungen') {
+    if (h.textContent.trim().startsWith('Anforderungen')) {
       anforderungenSection = h.nextElementSibling
       break
     }

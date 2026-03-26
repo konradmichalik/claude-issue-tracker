@@ -4,12 +4,12 @@ import { join } from 'node:path'
 
 export function resolveIssuesDir() {
   try {
-    const main = execSync('git worktree list', { encoding: 'utf-8' })
+    const main = execSync('git worktree list', { encoding: 'utf-8', cwd: process.env.PROJECT_DIR || process.cwd() })
       .split('\n')[0]
       .split(/\s+/)[0]
     return join(main, '.claude', 'issues')
   } catch {
-    return join(process.cwd(), '.claude', 'issues')
+    return join(process.env.PROJECT_DIR || process.cwd(), '.claude', 'issues')
   }
 }
 
@@ -63,7 +63,7 @@ function parseFrontmatter(content) {
 }
 
 function parseRequirements(content) {
-  const section = content.match(/## Anforderungen\n([\s\S]*?)(?=\n## |\n*$)/)
+  const section = content.match(/## Anforderungen[^\n]*\n([\s\S]*?)(?=\n## |\n*$)/)
   if (!section) return []
   const requirements = []
   let index = 0
@@ -159,6 +159,8 @@ updated: ${today}
 ## Aufwandsschätzung
 
 ## Umsetzungsplan
+
+## Testschritte
 
 ## Erkenntnisse
 `

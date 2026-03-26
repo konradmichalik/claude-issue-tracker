@@ -88,6 +88,22 @@ body {
   margin: 0;
 }
 
+.toolbar-project {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 16px;
+  margin-left: 8px;
+}
+
+.toolbar-project::before {
+  content: "·";
+  margin-right: 8px;
+}
+
+.toolbar-project:empty {
+  display: none;
+}
+
 .toolbar-right {
   display: flex;
   align-items: center;
@@ -196,17 +212,20 @@ body {
 /* ── Cards ── */
 
 .column-cards {
-  min-height: 40px;
+  flex: 1;
+  min-height: 120px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 4px;
   border-radius: 12px;
-  transition: background-color 0.15s;
+  border: 2px dashed transparent;
+  transition: background-color 0.15s, border-color 0.15s;
 }
 
 .column-cards.drag-over {
   background: var(--drop-bg);
+  border-color: var(--accent);
 }
 
 .card {
@@ -545,11 +564,54 @@ body {
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 12px;
+  word-break: break-all;
 }
 
 .modal-body p {
   margin: 0 0 12px;
   font-size: 13px;
+}
+
+.modal-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  table-layout: fixed;
+  word-wrap: break-word;
+}
+
+.modal-body th,
+.modal-body td {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  overflow-wrap: break-word;
+}
+
+.modal-body th {
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.modal-body dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  font-size: 13px;
+  margin: 0 0 12px;
+}
+
+.modal-body dt {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.modal-body dd {
+  margin: 0;
+  color: var(--text-secondary);
 }
 
 .modal-footer {
