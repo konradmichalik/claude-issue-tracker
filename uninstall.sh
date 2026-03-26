@@ -22,10 +22,10 @@ if [ -L "$target" ]; then
 fi
 
 # Board
-target="$CLAUDE_DIR/board"
-if [ -L "$target" ]; then
-  rm "$target"
-  echo "  Removed board: board/"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+if [ -d "$SCRIPT_DIR/board" ]; then
+  (cd "$SCRIPT_DIR/board" && npm unlink --silent 2>/dev/null)
+  echo "  Unlinked board: issue-board"
 fi
 
 echo "Done. Commands removed."

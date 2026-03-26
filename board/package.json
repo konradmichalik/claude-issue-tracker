@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
+  "bin": {
+    "issue-board": "./server.js"
+  },
   "scripts": {
     "start": "node server.js"
   },

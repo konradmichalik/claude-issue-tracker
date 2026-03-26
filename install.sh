@@ -20,13 +20,7 @@ ln -sfn "$SCRIPT_DIR/.claude/skills/i-issue-management" "$CLAUDE_DIR/skills/i-is
 echo "  Linked skill: i-issue-management"
 
 # Board
-ln -sfn "$SCRIPT_DIR/board" "$CLAUDE_DIR/board"
-echo "  Linked board: board/"
-
-# Install board dependencies if needed
-if [ ! -d "$SCRIPT_DIR/board/node_modules" ]; then
-  echo "  Installing board dependencies..."
-  (cd "$SCRIPT_DIR/board" && npm install --silent)
-fi
+(cd "$SCRIPT_DIR/board" && npm install --silent && npm link --silent)
+echo "  Linked board: issue-board"
 
 echo "Done. Commands available: /i:new, /i:estimate, /i:update, /i:close, /i:list, /i:resume, /i:board"

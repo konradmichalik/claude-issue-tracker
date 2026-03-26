@@ -1,5 +1,6 @@
+#!/usr/bin/env node
 import { fileURLToPath } from 'node:url'
-import { dirname, join } from 'node:path'
+import { dirname, join, basename } from 'node:path'
 import { watch, existsSync, mkdirSync } from 'node:fs'
 import express from 'express'
 import open from 'open'
@@ -12,8 +13,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const app = express()
 const PORT = process.env.BOARD_PORT || 0
 
+const projectName = basename(process.env.PROJECT_DIR || process.cwd())
+
 app.use(express.json())
 app.use(express.static(join(__dirname, 'public')))
+
+app.get('/api/project', (req, res) => {
+  res.json({ name: projectName })
+})
 
 app.get('/api/issues', (req, res) => {
   try {
