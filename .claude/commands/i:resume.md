@@ -1,19 +1,24 @@
-# i:breadcrumb
+# i:resume
 
-Save a session checkpoint to the issue document — survives context compression and session restarts.
+Resume work on an existing issue — show current state or save a session checkpoint.
 
 ## Arguments
 
 - `<issue-key>` (required) - Jira issue key (e.g., `VBDI-255`)
-- `<checkpoint>` (optional) - What you've done and what's next. If omitted, auto-generate from recent activity.
+- `<checkpoint>` (optional) - What you've done and what's next. If provided, saves a breadcrumb instead of showing status.
 
 ## Workflow
 
+### If issue document does not exist
+
+1. `Kein Issue-Dokument für <issue-key> gefunden. Nutze /i:new <issue-key> um es anzulegen.`
+
+### If `<checkpoint>` is provided (save breadcrumb)
+
 1. **Read issue document**
    - Load `.claude/issues/<issue-key>.md`
-   - If not found: tell the user to run `/i:req <issue-key>` first
 
-2. **Generate checkpoint** (if no `<checkpoint>` provided)
+2. **Generate checkpoint** (if `<checkpoint>` is generic or empty-ish)
    - Analyze recent tool calls and file changes in the current session
    - Summarize: what was done, what's in progress, what's next
    - Keep it concise — max 3-4 bullet points
@@ -34,6 +39,22 @@ Save a session checkpoint to the issue document — survives context compression
 5. **Confirm to user**
    - Show the saved checkpoint
    - Remind: "Dieser Breadcrumb bleibt erhalten, auch wenn der Context komprimiert wird."
+
+### If no `<checkpoint>` is provided (resume)
+
+1. **Read issue document**
+   - Load `.claude/issues/<issue-key>.md`
+
+2. **Show current state**
+   - Status (from frontmatter)
+   - Last breadcrumb (latest 🔖 entry from "Erkenntnisse", if any)
+   - Open requirements (unchecked items from "Anforderungen" with count)
+
+3. **Ask user**
+   - "Was möchtest du tun?"
+     - Weiterarbeiten (implementation)
+     - Schätzen (`/i:estimate <issue-key>`)
+     - Aktualisieren (`/i:update <issue-key>`)
 
 ## Auto-Breadcrumb on Session End
 
