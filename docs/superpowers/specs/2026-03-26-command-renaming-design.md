@@ -28,31 +28,31 @@ Rename aller Issue-Tracker-Commands zu intuitiveren, aktionsbasierten Namen. Hyb
 
 - Argument: `<issue-key> [info]`
 - Mit `[info]`: Wie bisheriges `i:note` — klassifizieren, in richtigen Abschnitt eintragen
-- Ohne `[info]`: Jira-Sync — `jira issue view <issue-key> --plain --comments 10`, neue Kommentare/Änderungen ins Dokument mergen, User informieren was sich geändert hat
+- Ohne `[info]`: Jira-Sync — `jira issue view <issue-key> --plain --comments 10`, neue Kommentare seit letztem `updated`-Datum ins Dokument mergen (Abschnitt "Erkenntnisse"), User informieren was sich geändert hat. Append-only — bestehende Einträge werden nicht verändert.
 - Issue-Dokument muss existieren, sonst Verweis auf `i:new`
 
 ### i:resume (ehem. i:breadcrumb + Teil von i:req)
 
-- Argument: `<issue-key>`
-- Liest Issue-Dokument, zeigt letzten Breadcrumb + Status + offene Anforderungen
-- Fragt: "Was möchtest du tun?" (weiterarbeiten, schätzen, updaten)
+- Argument: `<issue-key> [checkpoint]`
+- Ohne `[checkpoint]`: Liest Issue-Dokument, zeigt letzten Breadcrumb + Status + offene Anforderungen, fragt "Was möchtest du tun?" (weiterarbeiten, schätzen, updaten)
+- Mit `[checkpoint]`: Schreibt Breadcrumb ins Issue-Dokument (Format wie bisheriges `i:breadcrumb`: Timestamp + Erledigt/In Arbeit/Nächster Schritt)
 - Leichtgewichtiger Einstiegspunkt — keine automatische Analyse
 - Issue-Dokument muss existieren, sonst Verweis auf `i:new`
 
 ### i:close (ehem. i:dod)
 
 - Funktional identisch mit `i:dod`, nur neuer Name
-- Interne Verweise auf `i:new` statt `i:req`
+- Alle internen Verweise auf alte Commandnamen ersetzen (`i:req` → `i:new`, `i:note` → `i:update`, etc.)
 
 ### i:estimate (ehem. i:aws)
 
 - Funktional identisch mit `i:aws`, nur neuer Name
-- Interne Verweise auf `i:new` statt `i:req`
+- Alle internen Verweise auf alte Commandnamen ersetzen (`i:req` → `i:new`, `i:note` → `i:update`, etc.)
 
 ### i:list (ehem. i:issues)
 
 - Funktional identisch mit `i:issues`, nur neuer Name
-- Interne Verweise auf `i:new` statt `i:req`
+- Alle internen Verweise auf alte Commandnamen ersetzen (`i:req` → `i:new`, `i:note` → `i:update`, etc.)
 
 ### i:board
 
@@ -69,16 +69,20 @@ Rename aller Issue-Tracker-Commands zu intuitiveren, aktionsbasierten Namen. Hyb
 
 ### i-issue-management/SKILL.md
 
+- Frontmatter `description`: alte Commandnamen ersetzen
 - Lifecycle-Diagramm: alle Commandnamen ersetzen
 - Status-Tabelle: "Gesetzt durch" aktualisieren
+- Frontmatter-Feld-Tabelle: "Gesetzt durch" aktualisieren (`i:req` → `i:new`)
 - Abschnitt-Konventionen: Verweise aktualisieren
 - Breadcrumb-Abschnitt: `i:breadcrumb` → `i:resume`
 - Klassifizierung von Notizen: `i:note` → `i:update`
-- Gemeinsame Regeln: `i:req` → `i:new`
+- CLI-Ausgabe-Überschrift: `i:issues` → `i:list`
+- Gemeinsame Regeln: alle alten Commandnamen ersetzen
 
 ### Board
 
 - Prüfen ob Commandnamen im UI oder Server referenziert werden
+- Falls ja: ersetzen. Falls nein: keine Änderung an `i:board.md` oder Board-Code
 
 ## Scope-Abgrenzung
 
