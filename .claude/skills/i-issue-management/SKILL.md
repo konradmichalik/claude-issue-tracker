@@ -1,5 +1,5 @@
 ---
-description: Issue document format, lifecycle, and conventions for the i:req/i:aws/i:note/i:dod/i:issues workflow. Use when working with issue documents, Jira ticket analysis, effort estimation, or Definition of Done checks.
+description: Issue document format, lifecycle, and conventions for the i:new/i:estimate/i:update/i:close/i:list workflow. Use when working with issue documents, Jira ticket analysis, effort estimation, or Definition of Done checks.
 disable-model-invocation: true
 ---
 
@@ -10,20 +10,20 @@ Lokales Issue-Tracking basierend auf Markdown-Dokumenten in `.claude/issues/`. N
 ## Lifecycle
 
 ```
-i:req  ──>  i:aws (optional)  ──>  Implementation  ──>  i:dod
+i:new  ──>  i:estimate (optional)  ──>  Implementation  ──>  i:close
               │                          │
-              │                     i:note (as needed)
+              │                     i:update (as needed)
               │                          │
               └──────────────────────────┘
 ```
 
 | Status | Bedeutung | Gesetzt durch |
 |--------|-----------|---------------|
-| `analysis` | Anforderungen erfasst, noch nicht bewertet | i:req |
-| `estimated` | Aufwandsschätzung erstellt | i:aws |
-| `in-progress` | Implementierung läuft | i:req (nach Plan-Bestätigung) |
-| `in-review` | Code-Review / QA läuft | manuell oder i:dod (teilweise) |
-| `done` | Alle Anforderungen erfüllt | i:dod |
+| `analysis` | Anforderungen erfasst, noch nicht bewertet | i:new |
+| `estimated` | Aufwandsschätzung erstellt | i:estimate |
+| `in-progress` | Implementierung läuft | i:new (nach Plan-Bestätigung) |
+| `in-review` | Code-Review / QA läuft | manuell oder i:close (teilweise) |
+| `done` | Alle Anforderungen erfüllt | i:close |
 
 ## Issue-Document-Format
 
@@ -43,12 +43,12 @@ updated: <YYYY-MM-DD>
 
 | Feld | Pflicht | Gesetzt durch | Beschreibung |
 |------|---------|---------------|-------------|
-| `key` | ja | i:req | Jira-Key in Großbuchstaben (z.B. `MWS-19`) |
-| `title` | ja | i:req | Kurzer Ticket-Titel |
+| `key` | ja | i:new | Jira-Key in Großbuchstaben (z.B. `MWS-19`) |
+| `title` | ja | i:new | Kurzer Ticket-Titel |
 | `status` | ja | alle Commands | Aktueller Lifecycle-Status |
-| `complexity` | ja | i:req | Technische Komplexität |
-| `scope` | ja | i:req | Geschätzter Umfang |
-| `created` | ja | i:req | Erstellungsdatum |
+| `complexity` | ja | i:new | Technische Komplexität |
+| `scope` | ja | i:new | Geschätzter Umfang |
+| `created` | ja | i:new | Erstellungsdatum |
 | `updated` | ja | alle Commands | Letzte Änderung |
 
 ### Body
@@ -71,13 +71,13 @@ updated: <YYYY-MM-DD>
 - <YYYY-MM-DD>: Entscheidung X weil Y
 
 ## Aufwandsschätzung
-(ergänzt durch i:aws)
+(ergänzt durch i:estimate)
 
 ## Umsetzungsplan
 (ergänzt nach Bestätigung)
 
 ## Erkenntnisse
-(ergänzt während Umsetzung via i:note)
+(ergänzt während Umsetzung via i:update)
 ```
 
 ## Abschnitt-Konventionen
@@ -94,7 +94,7 @@ updated: <YYYY-MM-DD>
 ### Erkenntnisse
 - Format: `- <YYYY-MM-DD>: Erkenntnis`
 
-## Breadcrumbs (i:breadcrumb)
+## Breadcrumbs (i:resume)
 
 Session-Checkpoints im "Erkenntnisse"-Abschnitt. Format:
 
@@ -107,7 +107,7 @@ Session-Checkpoints im "Erkenntnisse"-Abschnitt. Format:
 
 Breadcrumbs überleben Context-Komprimierung und Session-Neustarts. Sie dienen als Wiederherstellungspunkt, damit die nächste Session nahtlos weiterarbeiten kann.
 
-## Klassifizierung von Notizen (i:note)
+## Klassifizierung von Notizen (i:update)
 
 | Typ | Ziel-Abschnitt | Format |
 |-----|----------------|--------|
@@ -138,7 +138,7 @@ Immer `$ISSUES_DIR/<issue-key>.md` verwenden, nie relativ zum aktuellen Verzeich
 - **Bilder sind Anforderungen**: Screenshots/Mockups auf visuelle Requirements, States und Edge Cases analysieren
 - **Keine Erfindungen**: Bei unzureichenden Infos nachfragen statt Scope erfinden
 
-## CLI-Ausgabe (i:issues)
+## CLI-Ausgabe (i:list)
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
