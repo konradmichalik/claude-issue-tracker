@@ -1,4 +1,4 @@
-# i:aws
+# i:estimate
 
 Create effort estimation for a Jira ticket, formatted as a Jira comment.
 
@@ -99,7 +99,7 @@ Note: The "Referenzen" section is **only included if relevant previous work was 
 
 ## Rules
 
-- **Requires i:req first** — if no issue document exists and no `<requirement>` is given, tell the user to run `/i:req <issue-key>` first
+- **Requires i:new first** — if no issue document exists and no `<requirement>` is given, tell the user to run `/i:new <issue-key>` first
 - **Keep it short** — scannable in under 30 seconds, no prose
 - Vorgehensweise: **detailed bullet points with sub-bullets** — concrete steps, tools, considerations
 - Subtasks (Aufwandsschätzung): **max 3-7 items**, group small tasks. **Bold** (`*...*`) for headers (*Prio 1*, *Prio 2*, *Gesamt*)

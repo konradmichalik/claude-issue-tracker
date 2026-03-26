@@ -1,6 +1,6 @@
-# i:dod
+# i:close
 
-Check Definition of Done — verify all requirements from the issue document against the current codebase.
+Check Definition of Done — verify all requirements and close the issue.
 
 ## Arguments
 
@@ -10,7 +10,7 @@ Check Definition of Done — verify all requirements from the issue document aga
 
 1. **Read issue document**
    - Load `.claude/issues/<issue-key>.md`
-   - If not found: tell the user to run `/i:req <issue-key>` first
+   - If not found: tell the user to run `/i:new <issue-key>` first
 
 2. **Extract all requirements**
    - Collect all checkboxes from the "Anforderungen" section (including Nachträge and Testfeedback)
@@ -60,6 +60,6 @@ Check Definition of Done — verify all requirements from the issue document aga
 - **Read-only on codebase** — this command only analyzes, never modifies code
 - **Evidence-based** — every "Umgesetzt" needs a file reference or diff evidence
 - **Honest assessment** — do not mark requirements as done if the evidence is weak
-- **Include Nachträge** — requirements added via i:note count equally
+- **Include Nachträge** — requirements added via i:update count equally
 - **Actionable** — if something is missing, say what specifically needs to be done
 - Issue document format, lifecycle, worktree-safety, and shared conventions: see **i-issue-management** skill

@@ -1,6 +1,6 @@
-# i:issues
+# i:list
 
-List all local issue documents with their status and progress in a CLI-style table.
+List all local issue documents with their status and progress.
 
 ## Arguments
 
@@ -16,7 +16,7 @@ None.
 
 2. **Scan issue documents**
    - Read all `.md` files in `$ISSUES_DIR`
-   - If directory is empty or doesn't exist: `Keine Issue-Dokumente vorhanden. Starte mit /i:req <issue-key>.`
+   - If directory is empty or doesn't exist: `Keine Issue-Dokumente vorhanden. Starte mit /i:new <issue-key>.`
 
 3. **Parse each document**
    - Extract frontmatter: `issue`, `status`, `updated`, `complexity`
