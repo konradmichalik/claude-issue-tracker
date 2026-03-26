@@ -14,6 +14,7 @@ Structures requirements from Jira tickets into testable checklists, tracks imple
 | `/i:close <issue>` | Checks every requirement against the codebase and reports what's done, partial, or missing |
 | `/i:list` | Shows all local issues in a table with status and progress bars |
 | `/i:resume <issue>` | Restores session context with status display — survives context compression and session restarts |
+| `/i:migrate` | Migrates existing issues to the current format — adds missing fields and sections |
 | `/i:board` | Opens the Kanban board in the browser |
 
 ## Lifecycle

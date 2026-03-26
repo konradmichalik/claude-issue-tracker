@@ -9,12 +9,14 @@ Local issue tracker for Claude Code — Jira-integrated, Markdown-based. Structu
 ```
 .claude/
 ├── commands/
-│   ├── i:req.md        # Requirements intake
-│   ├── i:aws.md        # Effort estimation
-│   ├── i:note.md       # Add information to issues
-│   ├── i:dod.md        # Definition of Done check
-│   ├── i:issues.md     # List all issues
-│   └── i:breadcrumb.md # Session checkpoint
+│   ├── i:new.md        # Requirements intake
+│   ├── i:estimate.md   # Effort estimation
+│   ├── i:update.md     # Add information to issues (syncs to Jira)
+│   ├── i:close.md      # Definition of Done check
+│   ├── i:list.md       # List all issues
+│   ├── i:resume.md     # Session checkpoint with status display
+│   ├── i:migrate.md    # Migrate issues to current format
+│   └── i:board.md      # Open Kanban board
 ├── skills/
 │   └── i-issue-management/
 │       └── skill.md    # Shared format, lifecycle, conventions
@@ -28,31 +30,32 @@ Local issue tracker for Claude Code — Jira-integrated, Markdown-based. Structu
 
 | Command | Purpose |
 |---------|---------|
-| `/i:req <issue> [description]` | Requirements intake — gather info (via jira-cli or manual), assess scope, persist as issue document |
-| `/i:aws <issue>` | Effort estimation — reads issue document, outputs Jira comment (German) |
-| `/i:note <issue> <info>` | Add information to issue document (findings, test feedback, new requirements) |
-| `/i:dod <issue>` | Definition of Done check — verify requirements against codebase |
-| `/i:issues` | List all local issue documents with status and progress |
-| `/i:breadcrumb <issue> [checkpoint]` | Save session checkpoint — survives context compression and session restarts |
+| `/i:new <issue> [description]` | Requirements intake — gather info (via jira-cli or manual), assess scope, persist as issue document |
+| `/i:estimate <issue>` | Effort estimation — reads issue document, outputs Jira comment (German) |
+| `/i:update <issue> <info>` | Add information to issue document (findings, test feedback, new requirements) — syncs to Jira |
+| `/i:close <issue>` | Definition of Done check — verify requirements against codebase |
+| `/i:list` | List all local issue documents with status and progress |
+| `/i:resume <issue>` | Restore session context with status display — survives context compression and session restarts |
+| `/i:migrate` | Migrate existing issues to current format — adds missing fields and sections |
 | `/i:board` | Open Kanban board in browser — visualize issues, drag & drop status, filter, detail view |
 
 ## Issue Document Lifecycle
 
 ```
-i:req  ──>  i:aws (optional)  ──>  Implementation  ──>  i:dod
-              │                          │
-              │                     i:note / i:breadcrumb (as needed)
-              │                          │
-              └──────────────────────────┘
+i:new  ──>  i:estimate (optional)  ──>  Implementation  ──>  i:close
+              │                              │
+              │                     i:update / i:resume (as needed)
+              │                              │
+              └──────────────────────────────┘
 ```
 
 | Status | Set by |
 |--------|--------|
-| `analysis` | i:req |
-| `estimated` | i:aws |
-| `in-progress` | i:req (after plan confirmation) |
-| `in-review` | manual or i:dod (partial) |
-| `done` | i:dod |
+| `analysis` | i:new |
+| `estimated` | i:estimate |
+| `in-progress` | i:new (after plan confirmation) |
+| `in-review` | manual or i:close (partial) |
+| `done` | i:close |
 
 ## Issue Document Format
 
