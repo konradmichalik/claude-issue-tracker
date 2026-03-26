@@ -45,12 +45,18 @@ Resume work on an existing issue — show current state or save a session checkp
 1. **Read issue document**
    - Load `.claude/issues/<issue-key>.md`
 
-2. **Show current state**
-   - Status (from frontmatter)
+2. **Auto-advance status** (if applicable)
+   - If status is `analysis` or `estimated` AND a "Umsetzungsplan" section with content exists:
+     - Set status to `in-progress`
+     - Update `updated` date
+     - Note the status change in the output: `Status: analysis → in-progress (Umsetzungsplan vorhanden)`
+
+3. **Show current state**
+   - Status (from frontmatter, reflecting any auto-advance)
    - Last breadcrumb (latest 🔖 entry from "Erkenntnisse", if any)
    - Open requirements (unchecked items from "Anforderungen" with count)
 
-3. **Ask user**
+4. **Ask user**
    - "Was möchtest du tun?"
      - Weiterarbeiten (implementation)
      - Schätzen (`/i:estimate <issue-key>`)
