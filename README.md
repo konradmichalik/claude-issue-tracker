@@ -8,25 +8,26 @@ Structures requirements from Jira tickets into testable checklists, tracks imple
 
 | Command | What it does |
 |---------|-------------|
-| `/i:req <issue>` | Fetches a Jira ticket (or takes manual input), analyzes the codebase, and creates a structured issue document with requirements, affected areas, and an implementation plan |
-| `/i:aws <issue>` | Creates an effort estimation in Jira wiki markup, ready to paste as a comment |
-| `/i:note <issue> <info>` | Adds findings, test feedback, new requirements, or decisions to an existing issue |
-| `/i:dod <issue>` | Checks every requirement against the codebase and reports what's done, partial, or missing |
-| `/i:issues` | Shows all local issues in a table with status and progress bars |
-| `/i:breadcrumb <issue>` | Saves a session checkpoint that survives context compression and session restarts |
+| `/i:new <issue>` | Fetches a Jira ticket (or takes manual input), analyzes the codebase, and creates a structured issue document with requirements, affected areas, and an implementation plan |
+| `/i:estimate <issue>` | Creates an effort estimation in Jira wiki markup, ready to paste as a comment |
+| `/i:update <issue> <info>` | Adds findings, test feedback, new requirements, or decisions to an existing issue — syncs to Jira |
+| `/i:close <issue>` | Checks every requirement against the codebase and reports what's done, partial, or missing |
+| `/i:list` | Shows all local issues in a table with status and progress bars |
+| `/i:resume <issue>` | Restores session context with status display — survives context compression and session restarts |
+| `/i:board` | Opens the Kanban board in the browser |
 
 ## Lifecycle
 
 ```
-i:req  ──>  i:aws (optional)  ──>  Implementation  ──>  i:dod
-                                         │
-                                    i:note / i:breadcrumb (as needed)
+i:new  ──>  i:estimate (optional)  ──>  Implementation  ──>  i:close
+                                              │
+                                     i:update / i:resume (as needed)
 ```
 
-1. **`/i:req PROJ-123`** — Intake: fetches ticket via `jira-cli`, structures requirements, assesses scope
-2. **`/i:aws PROJ-123`** — Estimation: breaks down into tasks with hour estimates (German, Jira markup)
-3. **Implement** — Work on the ticket, add notes with `/i:note` as you go
-4. **`/i:dod PROJ-123`** — Verify: checks each requirement against the code with file references
+1. **`/i:new PROJ-123`** — Intake: fetches ticket via `jira-cli`, structures requirements, assesses scope
+2. **`/i:estimate PROJ-123`** — Estimation: breaks down into tasks with hour estimates (German, Jira markup)
+3. **Implement** — Work on the ticket, add updates with `/i:update` as you go
+4. **`/i:close PROJ-123`** — Verify: checks each requirement against the code with file references
 
 ## Kanban Board
 
