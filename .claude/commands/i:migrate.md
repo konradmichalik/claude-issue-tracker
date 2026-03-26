@@ -37,6 +37,7 @@ None.
    4. `## Entscheidungen`
    5. `## Aufwandsschätzung`
    6. `## Umsetzungsplan`
+   7. `## Testschritte`
    7. `## Erkenntnisse`
 
    **Preserve everything that already exists** — never remove or reorder existing content.

@@ -76,6 +76,9 @@ updated: <YYYY-MM-DD>
 ## Umsetzungsplan
 (ergänzt nach Bestätigung)
 
+## Testschritte
+(ergänzt durch i:new oder i:update)
+
 ## Erkenntnisse
 (ergänzt während Umsetzung via i:update)
 ```
@@ -90,6 +93,11 @@ updated: <YYYY-MM-DD>
 
 ### Entscheidungen
 - Format: `- <YYYY-MM-DD>: Entscheidung — Grund: Begründung`
+
+### Testschritte
+- Manuelle Testschritte als nummerierte Liste
+- Format: `1. <Aktion> → <erwartetes Ergebnis>`
+- Ergänzt durch i:new (aus Akzeptanzkriterien) oder i:update
 
 ### Erkenntnisse
 - Format: `- <YYYY-MM-DD>: Erkenntnis`
