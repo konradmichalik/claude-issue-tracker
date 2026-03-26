@@ -6,11 +6,11 @@ CLAUDE_DIR="$HOME/.claude"
 echo "Uninstalling claude-issue-tracker..."
 
 # Commands
-for cmd in i:req i:aws i:note i:dod i:issues; do
-  target="$CLAUDE_DIR/commands/${cmd}.md"
-  if [ -L "$target" ]; then
-    rm "$target"
-    echo "  Removed command: ${cmd}.md"
+for cmd in "$CLAUDE_DIR/commands/"i:*.md; do
+  if [ -L "$cmd" ]; then
+    name="$(basename "$cmd")"
+    rm "$cmd"
+    echo "  Removed command: $name"
   fi
 done
 

@@ -29,4 +29,4 @@ if [ ! -d "$SCRIPT_DIR/board/node_modules" ]; then
   (cd "$SCRIPT_DIR/board" && npm install --silent)
 fi
 
-echo "Done. Commands available: /i:req, /i:aws, /i:note, /i:dod, /i:issues, /i:board"
+echo "Done. Commands available: /i:new, /i:estimate, /i:update, /i:close, /i:list, /i:resume, /i:board"
