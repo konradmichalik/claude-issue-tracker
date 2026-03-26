@@ -9,68 +9,149 @@
 <body>
   <!-- Toolbar -->
   <header class="toolbar">
-    <h1 class="toolbar-title">Issue Board</h1>
-    <div class="toolbar-spacer"></div>
-    <input type="text" id="search" class="toolbar-search" placeholder="Suche...">
-    <select id="filter-complexity" class="toolbar-select">
-      <option value="">Komplexität</option>
-      <option value="Low">Low</option>
-      <option value="Medium">Medium</option>
-      <option value="High">High</option>
-    </select>
-    <select id="filter-scope" class="toolbar-select">
-      <option value="">Scope</option>
-      <option value="Small (&lt; 4h)">Small</option>
-      <option value="Medium (4-16h)">Medium</option>
-      <option value="Large (&gt; 16h)">Large</option>
-    </select>
-    <button id="theme-toggle" class="toolbar-theme" aria-label="Toggle theme"></button>
+    <div class="toolbar-left">
+      <h1 class="toolbar-title">Issue Board</h1>
+    </div>
+    <div class="toolbar-right">
+      <div class="search-wrapper">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="search" class="toolbar-search" placeholder="Search issues...">
+      </div>
+      <button id="theme-toggle" class="toolbar-theme" aria-label="Toggle theme">
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
   </header>
 
   <!-- Board -->
   <main class="board">
     <section class="column" data-column="backlog">
       <div class="column-header">
-        <span class="column-dot column-dot--backlog"></span>
         <span class="column-title">Backlog</span>
         <span class="column-count" data-count="backlog">0</span>
       </div>
       <div class="column-cards" data-drop="backlog"></div>
+      <button class="add-issue-btn" data-add-column="backlog">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Issue
+      </button>
     </section>
     <section class="column" data-column="progress">
       <div class="column-header">
-        <span class="column-dot column-dot--progress"></span>
         <span class="column-title">In Progress</span>
         <span class="column-count" data-count="progress">0</span>
       </div>
       <div class="column-cards" data-drop="progress"></div>
+      <button class="add-issue-btn" data-add-column="progress">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Issue
+      </button>
     </section>
     <section class="column" data-column="review">
       <div class="column-header">
-        <span class="column-dot column-dot--review"></span>
         <span class="column-title">Review</span>
         <span class="column-count" data-count="review">0</span>
       </div>
       <div class="column-cards" data-drop="review"></div>
+      <button class="add-issue-btn" data-add-column="review">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Issue
+      </button>
     </section>
     <section class="column" data-column="done">
       <div class="column-header">
-        <span class="column-dot column-dot--done"></span>
         <span class="column-title">Done</span>
         <span class="column-count" data-count="done">0</span>
       </div>
       <div class="column-cards" data-drop="done"></div>
+      <button class="add-issue-btn" data-add-column="done">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Issue
+      </button>
     </section>
   </main>
 
   <!-- Detail Modal -->
   <dialog id="detail-modal" class="modal">
-    <div class="modal-header">
-      <span id="modal-key" class="modal-key"></span>
-      <span id="modal-title" class="modal-title"></span>
-      <button id="modal-close" class="modal-close" aria-label="Close">&times;</button>
+    <div class="modal-inner">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <span id="modal-key" class="modal-key"></span>
+          <span class="modal-separator">·</span>
+          <span id="modal-updated" class="modal-updated"></span>
+        </div>
+        <button id="modal-close" class="modal-close" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <h2 id="modal-title" class="modal-title"></h2>
+      <div class="modal-meta">
+        <div class="modal-meta-item">
+          <span class="modal-meta-label">COMPLEXITY</span>
+          <span id="modal-complexity" class="badge"></span>
+        </div>
+        <div class="modal-meta-item">
+          <span class="modal-meta-label">PROGRESS</span>
+          <div class="modal-progress">
+            <div class="progress-bar progress-bar--modal">
+              <div id="modal-progress-fill" class="progress-fill"></div>
+            </div>
+            <span id="modal-progress-text" class="progress-text"></span>
+          </div>
+        </div>
+      </div>
+      <div id="modal-body" class="modal-body"></div>
+      <div class="modal-footer">
+        <button id="modal-close-btn" class="modal-close-btn">Close</button>
+      </div>
     </div>
-    <div id="modal-body" class="modal-body"></div>
+  </dialog>
+
+  <!-- Add Issue Modal -->
+  <dialog id="add-modal" class="modal">
+    <div class="modal-inner add-modal-inner">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <span class="modal-key">New Issue</span>
+        </div>
+        <button class="modal-close add-modal-close" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="add-issue-form" class="add-form">
+        <label class="form-label">
+          <span class="modal-meta-label">KEY</span>
+          <input type="text" id="add-key" class="form-input" placeholder="PROJ-123" required pattern="[A-Za-z]+-\d+">
+        </label>
+        <label class="form-label">
+          <span class="modal-meta-label">TITLE</span>
+          <input type="text" id="add-title" class="form-input" placeholder="Issue title" required>
+        </label>
+        <div class="form-row">
+          <label class="form-label">
+            <span class="modal-meta-label">COMPLEXITY</span>
+            <select id="add-complexity" class="form-input">
+              <option value="Low">Low</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="High">High</option>
+            </select>
+          </label>
+          <label class="form-label">
+            <span class="modal-meta-label">SCOPE</span>
+            <select id="add-scope" class="form-input">
+              <option value="Small (< 4h)">Small (< 4h)</option>
+              <option value="Medium (4-16h)" selected>Medium (4-16h)</option>
+              <option value="Large (> 16h)">Large (> 16h)</option>
+            </select>
+          </label>
+        </div>
+        <input type="hidden" id="add-column" value="">
+        <div class="modal-footer">
+          <button type="submit" class="modal-close-btn modal-create-btn">Create Issue</button>
+        </div>
+      </form>
+    </div>
   </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>

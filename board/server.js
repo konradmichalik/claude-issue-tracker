@@ -5,7 +5,7 @@ import express from 'express'
 import open from 'open'
 import {
   parseAllIssues, updateStatus, toggleCheckbox,
-  readRaw, resolveIssuesDir, COLUMN_TO_STATUS
+  readRaw, createIssue, resolveIssuesDir, COLUMN_TO_STATUS
 } from './lib/issues.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -42,6 +42,18 @@ app.put('/api/issues/:key/checkbox', (req, res) => {
     res.json({ ok: true })
   } catch (err) {
     res.status(500).json({ error: err.message })
+  }
+})
+
+app.post('/api/issues', (req, res) => {
+  try {
+    const { key, title, complexity, scope, column } = req.body
+    if (!key || !title) return res.status(400).json({ error: 'Key and title are required' })
+    const status = COLUMN_TO_STATUS[column] || 'analysis'
+    createIssue({ key, title, complexity: complexity || 'Medium', scope: scope || 'Medium (4-16h)', status })
+    res.json({ ok: true })
+  } catch (err) {
+    res.status(400).json({ error: err.message })
   }
 })
 

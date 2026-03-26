@@ -1,8 +1,10 @@
 /* global marked */
 
+// ── State ──
+
 const state = {
   issues: [],
-  filter: { search: '', complexity: '', scope: '' },
+  filter: { search: '' },
   theme: localStorage.getItem('board-theme') ||
     (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
 }
@@ -17,17 +19,37 @@ async function fetchIssues() {
 
 fetchIssues()
 
-// --- Render ---
+// ── Helpers ──
+
+function relativeTime(dateStr) {
+  if (!dateStr) return ''
+  const now = new Date()
+  const then = new Date(dateStr + 'T00:00:00')
+  const diffMs = now - then
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMins / 60)
+  const diffDays = Math.floor(diffHours / 24)
+
+  if (diffMins < 1) return 'just now'
+  if (diffMins < 60) return `${diffMins}m`
+  if (diffHours < 24) return `${diffHours}h`
+  if (diffDays < 30) return `${diffDays}d`
+  return dateStr
+}
+
+const clockIcon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
+
+const checkSquareIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>'
+
+// ── Render ──
 
 const COLUMNS = ['backlog', 'progress', 'review', 'done']
 
 function render() {
   const filtered = state.issues.filter(issue => {
-    const { search, complexity, scope } = state.filter
+    const { search } = state.filter
     if (search && !issue.key.toLowerCase().includes(search) &&
         !issue.title.toLowerCase().includes(search)) return false
-    if (complexity && issue.complexity !== complexity) return false
-    if (scope && issue.scope !== scope) return false
     return true
   })
 
@@ -43,13 +65,19 @@ function cardHTML(issue) {
   const pct = issue.progress.total > 0
     ? Math.round((issue.progress.checked / issue.progress.total) * 100)
     : 0
+  const time = relativeTime(issue.updated)
+
   return `
     <div class="card" draggable="true" data-key="${issue.key}" data-column="${issue.column}">
-      <div class="card-key">${issue.key}</div>
+      <div class="card-top">
+        <span class="card-key">${issue.key}</span>
+        <span class="card-time">${clockIcon} ${time}</span>
+      </div>
       <div class="card-title">${issue.title}</div>
       <div class="card-footer">
         <span class="badge" data-complexity="${issue.complexity}">${issue.complexity}</span>
-        <div class="progress">
+        <div class="card-progress">
+          ${checkSquareIcon}
           <div class="progress-bar">
             <div class="progress-fill" style="width:${pct}%"></div>
           </div>
@@ -60,20 +88,10 @@ function cardHTML(issue) {
   `
 }
 
-// --- Filters and theme toggle ---
+// ── Search & Theme ──
 
 document.getElementById('search').addEventListener('input', e => {
   state.filter.search = e.target.value.toLowerCase()
-  render()
-})
-
-document.getElementById('filter-complexity').addEventListener('change', e => {
-  state.filter.complexity = e.target.value
-  render()
-})
-
-document.getElementById('filter-scope').addEventListener('change', e => {
-  state.filter.scope = e.target.value
   render()
 })
 
@@ -83,7 +101,7 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
   localStorage.setItem('board-theme', state.theme)
 })
 
-// --- Drag & Drop ---
+// ── Drag & Drop ──
 
 document.addEventListener('dragstart', e => {
   const card = e.target.closest('.card')
@@ -138,12 +156,16 @@ for (const drop of document.querySelectorAll('[data-drop]')) {
   })
 }
 
-// --- Detail modal ---
+// ── Detail Modal ──
 
 const modal = document.getElementById('detail-modal')
 const modalKey = document.getElementById('modal-key')
 const modalTitle = document.getElementById('modal-title')
 const modalBody = document.getElementById('modal-body')
+const modalUpdated = document.getElementById('modal-updated')
+const modalComplexity = document.getElementById('modal-complexity')
+const modalProgressFill = document.getElementById('modal-progress-fill')
+const modalProgressText = document.getElementById('modal-progress-text')
 
 document.addEventListener('click', async e => {
   const card = e.target.closest('.card')
@@ -153,20 +175,31 @@ document.addEventListener('click', async e => {
   const issue = state.issues.find(i => i.key === key)
   if (!issue) return
 
+  // Populate header
   modalKey.textContent = issue.key
   modalTitle.textContent = issue.title
+  modalUpdated.textContent = `Updated ${relativeTime(issue.updated)} ago`
+  modalComplexity.textContent = issue.complexity
+  modalComplexity.dataset.complexity = issue.complexity
+
+  // Progress
+  const pct = issue.progress.total > 0
+    ? Math.round((issue.progress.checked / issue.progress.total) * 100)
+    : 0
+  modalProgressFill.style.width = `${pct}%`
+  modalProgressText.textContent = `${issue.progress.checked}/${issue.progress.total}`
+
   modalBody.innerHTML = '<p class="loading">Laden...</p>'
   modal.showModal()
 
   const res = await fetch(`/api/issues/${key}/raw`)
   const md = await res.text()
 
+  // Strip frontmatter for display
   const body = md.replace(/^---\n[\s\S]*?\n---\n*/, '')
   modalBody.innerHTML = marked.parse(body)
 
-  // Make ONLY Anforderungen checkboxes interactive.
-  // The server-side toggleCheckbox() only operates on checkboxes in the
-  // ## Anforderungen section, so we must match those indices exactly.
+  // Make ONLY Anforderungen checkboxes interactive
   const headings = modalBody.querySelectorAll('h2')
   let anforderungenSection = null
   for (const h of headings) {
@@ -192,9 +225,56 @@ document.addEventListener('click', async e => {
 })
 
 document.getElementById('modal-close').addEventListener('click', () => modal.close())
+document.getElementById('modal-close-btn').addEventListener('click', () => modal.close())
 modal.addEventListener('click', e => { if (e.target === modal) modal.close() })
 
-// --- SSE live refresh ---
+// ── Add Issue Modal ──
+
+const addModal = document.getElementById('add-modal')
+const addForm = document.getElementById('add-issue-form')
+const addColumnInput = document.getElementById('add-column')
+
+for (const btn of document.querySelectorAll('.add-issue-btn')) {
+  btn.addEventListener('click', () => {
+    addForm.reset()
+    addColumnInput.value = btn.dataset.addColumn
+    addModal.showModal()
+    document.getElementById('add-key').focus()
+  })
+}
+
+document.querySelector('.add-modal-close').addEventListener('click', () => addModal.close())
+addModal.addEventListener('click', e => { if (e.target === addModal) addModal.close() })
+
+addForm.addEventListener('submit', async e => {
+  e.preventDefault()
+  const key = document.getElementById('add-key').value.trim().toUpperCase()
+  const title = document.getElementById('add-title').value.trim()
+  const complexity = document.getElementById('add-complexity').value
+  const scope = document.getElementById('add-scope').value
+  const column = addColumnInput.value
+
+  const body = { key, title, complexity, scope, column }
+
+  try {
+    const res = await fetch('/api/issues', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+    if (!res.ok) {
+      const err = await res.json()
+      alert(err.error || 'Failed to create issue')
+      return
+    }
+    addModal.close()
+    await fetchIssues()
+  } catch {
+    alert('Failed to create issue')
+  }
+})
+
+// ── SSE live refresh ──
 
 function connectSSE() {
   const es = new EventSource('/events')

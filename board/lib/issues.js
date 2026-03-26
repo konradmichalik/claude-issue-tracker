@@ -1,5 +1,5 @@
 import { execSync } from 'node:child_process'
-import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs'
+import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 
 export function resolveIssuesDir() {
@@ -130,4 +130,37 @@ export function readRaw(key) {
   const filePath = join(resolveIssuesDir(), `${key}.md`)
   if (!existsSync(filePath)) throw new Error(`Issue not found: ${key}`)
   return readFileSync(filePath, 'utf-8')
+}
+
+export function createIssue({ key, title, complexity, scope, status }) {
+  const dir = resolveIssuesDir()
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
+  const filePath = join(dir, `${key}.md`)
+  if (existsSync(filePath)) throw new Error(`Issue already exists: ${key}`)
+  const today = new Date().toISOString().slice(0, 10)
+  const content = `---
+key: ${key}
+title: ${title}
+status: ${status}
+complexity: ${complexity}
+scope: ${scope}
+created: ${today}
+updated: ${today}
+---
+
+## Anforderungen
+
+## Betroffene Bereiche
+
+## Offene Fragen
+
+## Entscheidungen
+
+## Aufwandsschätzung
+
+## Umsetzungsplan
+
+## Erkenntnisse
+`
+  writeFileSync(filePath, content, 'utf-8')
 }
