@@ -31,21 +31,47 @@ const COLUMN_TO_STATUS = {
 export function parseIssue(filePath) {
   const content = readFileSync(filePath, 'utf-8')
   const fm = parseFrontmatter(content)
+  const legacy = parseLegacyHeader(content)
   const requirements = parseRequirements(content)
   const checked = requirements.filter(r => r.checked).length
+  const fileKey = filePath.split('/').pop().replace(/\.md$/, '')
+  const status = fm.status || legacy.status || 'analysis'
 
   return {
-    key: fm.key || '',
-    title: fm.title || '',
-    status: fm.status || 'analysis',
-    complexity: fm.complexity || '',
-    scope: fm.scope || '',
-    created: fm.created || '',
-    updated: fm.updated || '',
-    column: STATUS_TO_COLUMN[fm.status] || 'backlog',
+    key: fm.key || legacy.key || fileKey,
+    title: fm.title || legacy.title || fileKey,
+    status,
+    complexity: fm.complexity || legacy.complexity || '',
+    scope: fm.scope || legacy.scope || '',
+    created: fm.created || legacy.created || '',
+    updated: fm.updated || legacy.updated || '',
+    column: STATUS_TO_COLUMN[status] || 'backlog',
     progress: { checked, total: requirements.length },
     requirements
   }
+}
+
+function parseLegacyHeader(content) {
+  const result = {}
+  const h1 = content.match(/^#\s+([^\n]+)/m)
+  if (h1) {
+    const m = h1[1].match(/^([A-Z]+-\d+):\s*(.+)$/)
+    if (m) { result.key = m[1]; result.title = m[2].trim() }
+    else { result.title = h1[1].trim() }
+  }
+  // "## Status: `value`" or "- **Status:** value" or "| Status | value |"
+  const status = content.match(/(?:##\s+Status:\s*`?([^`\n]+?)`?$)|(?:[-*]\s*\*\*Status:\*\*\s*([^\n]+))|(?:\|\s*Status\s*\|\s*([^|\n]+?)\s*\|)/m)
+  if (status) {
+    const v = (status[1] || status[2] || status[3] || '').trim().toLowerCase()
+    if (v) result.status = v
+  }
+  const complexity = content.match(/(?:[-*]\s*\*\*Complexity:?\*\*\s*([^\n]+))|(?:\|\s*Complexity\s*\|\s*([^|\n]+?)\s*\|)/i)
+  if (complexity) result.complexity = (complexity[1] || complexity[2] || '').trim()
+  const scope = content.match(/(?:[-*]\s*\*\*Scope:?\*\*\s*([^\n]+))|(?:\|\s*Scope\s*\|\s*([^|\n]+?)\s*\|)/i)
+  if (scope) result.scope = (scope[1] || scope[2] || '').trim()
+  const created = content.match(/(?:[-*]\s*\*\*Created:?\*\*\s*([^\n]+))|(?:\|\s*Created\s*\|\s*([^|\n]+?)\s*\|)/i)
+  if (created) result.created = (created[1] || created[2] || '').trim()
+  return result
 }
 
 function parseFrontmatter(content) {
@@ -63,11 +89,13 @@ function parseFrontmatter(content) {
 }
 
 function parseRequirements(content) {
-  const section = content.match(/## Anforderungen[^\n]*\n([\s\S]*?)(?=\n## |\n*$)/)
-  if (!section) return []
+  let section = content.match(/## Anforderungen[^\n]*\n([\s\S]*?)(?=\n## |\n*$)/)
+  let body = section ? section[1] : null
+  // Legacy fallback: collect all top-level checkboxes if no Anforderungen section
+  if (!body) body = content
   const requirements = []
   let index = 0
-  for (const line of section[1].split('\n')) {
+  for (const line of body.split('\n')) {
     const m = line.match(/^- \[([ x])\] (.+)/)
     if (m) {
       requirements.push({ index, text: m[2].trim(), checked: m[1] === 'x' })
