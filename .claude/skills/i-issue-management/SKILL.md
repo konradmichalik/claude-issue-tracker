@@ -124,6 +124,23 @@ Breadcrumbs überleben Context-Komprimierung und Session-Neustarts. Sie dienen a
 | Technische Erkenntnis | Erkenntnisse | `- <date>: <text>` |
 | Entscheidung | Entscheidungen | `- <date>: <text> — Grund: <reason>` |
 
+## Section-Aliase
+
+Beim Lesen oder Migrieren werden folgende Section-Namen als äquivalent zu den kanonischen Namen behandelt (case-insensitive, ohne führende Emojis/Klammer-Zusätze):
+
+| Variante | Kanonisch |
+|---|---|
+| `Anforderungen (DoD)`, `Anforderungen (Definition of Done)`, `Definition of Done` | `Anforderungen` |
+| `Codebase-Analyse`, `Betroffene Codebereiche`, `Betroffene Bereiche/Dateien` | `Betroffene Bereiche` |
+| `Fragen`, `Open Questions`, `Klärungsbedarf` | `Offene Fragen` |
+| `Decisions`, `Entscheidungen & Annahmen` | `Entscheidungen` |
+| `Schätzung`, `Aufwand`, `Estimation` | `Aufwandsschätzung` |
+| `Plan`, `Implementierung`, `Vorgehen` | `Umsetzungsplan` |
+| `Tests`, `Test Plan`, `Testing` | `Testschritte` |
+| `Findings`, `Notizen`, `Ergebnisse` | `Erkenntnisse` |
+
+Neue Issues sollen die kanonischen Namen verwenden. Aliase existieren nur, damit Legacy-Issues nicht doppelte Sections erhalten.
+
 ## Worktree-Safety
 
 Issue-Dokumente liegen im Hauptverzeichnis, nicht im Worktree:
