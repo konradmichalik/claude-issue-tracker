@@ -62,6 +62,18 @@ Create effort estimation for a Jira ticket, formatted as a Jira comment.
    - Offer adjustment (e.g., +/- 20%)
    - Regenerate Jira comment if corrected
 
+10. **Offer to post to Jira**
+   - Ask: `Als Jira-Kommentar posten?` — default is no
+   - Only on explicit confirmation:
+     ```bash
+     TMP=$(mktemp -d)
+     # write the estimation body to "$TMP/estimate.txt" first
+     jira issue comment add <issue-key> -T "$TMP/estimate.txt" --no-input
+     ```
+     Write the body to a file — the wiki markup contains `|`, `*` and `{{}}`, which break inline shell quoting.
+   - On success: record `- Jira-Kommentar (Schätzung) gepostet <YYYY-MM-DD HH:MM>` under "Quellen"
+   - On failure: keep the local estimation, report the error, and leave the copy-ready output in the chat
+
 ## Output Format
 
 ```
@@ -107,4 +119,6 @@ Note: The "Referenzen" section is **only included if relevant previous work was 
 - Only ask questions if **critical context is truly missing**
 - Estimate in **hours** (realistic, include buffer). Total also in **Jira days (1 Tag = 8 Std.)**. Tasks can be < 1h (e.g., 0,5 Std.)
 - **Jira wiki markup** — *bold*, _italic_, {{monospace}}, {quote}. No code fences around output.
+- **Never post unasked** — the Jira comment is only created after explicit confirmation in step 10
+- Data sources, CLI preflight, and write-back rules: see **i-issue-management** skill, chapter „Datenquellen & CLIs"
 - Issue document format, lifecycle, worktree-safety, and shared conventions: see **i-issue-management** skill

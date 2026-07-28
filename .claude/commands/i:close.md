@@ -17,10 +17,21 @@ Check Definition of Done — verify all requirements and close the issue.
    - Note which are already checked and which are open
 
 3. **Verify each requirement against the codebase**
+   Determine the base branch instead of assuming `main`:
+   ```bash
+   BASE=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||')
+   [ -n "$BASE" ] || BASE=$(git config --get init.defaultBranch)
+   [ -n "$BASE" ] || for b in main master; do
+     git rev-parse --verify "$b" >/dev/null 2>&1 && BASE="$b" && break
+   done
+   git diff "$BASE...HEAD" --stat
+   ```
+   Keep the `[ -n "$BASE" ] ||` guards — in a `cmd | sed || fallback` chain the exit status comes from `sed`, which succeeds on empty input, so the fallback never fires. If `BASE` stays empty or equals the current branch, say so and verify against the working tree instead of a diff.
    For each unchecked requirement:
    - Search the codebase for evidence that it was implemented
    - Check the affected areas listed in the issue document
-   - Use `git diff main...HEAD` (or appropriate base branch) to see what changed
+   - Use the diff against `$BASE` to see what changed
+   - Consult the "Quellen" section — attachments and Confluence pages define visual and functional acceptance criteria
    - Classify as:
      - **Umgesetzt** — clear evidence in code
      - **Teilweise umgesetzt** — partially done, describe what's missing
@@ -55,9 +66,22 @@ Check Definition of Done — verify all requirements and close the issue.
    - If open items remain: keep current status, list what's missing
    - Update `updated` date
 
+6. **Offer Jira transition** (only if all requirements are met)
+   - Read the current Jira status: `jira issue view <issue-key> --raw | jq -r '.fields.status.name'`
+   - Ask which target status is intended and confirm — never transition automatically
+   - On confirmation:
+     ```bash
+     jira issue move <issue-key> "<STATE>" --comment "<optionale Zusammenfassung>"
+     ```
+   - `STATE` must match the project's workflow exactly. If the transition is rejected, report the error and ask for the correct name instead of guessing
+   - On success: record `- Jira-Status gesetzt auf <STATE> am <YYYY-MM-DD HH:MM>` under "Quellen"
+   - If requirements are still open, skip this step entirely
+
 ## Rules
 
 - **Read-only on codebase** — this command only analyzes, never modifies code
+- **No transition without confirmation** — and never while requirements are open
+- Data sources, CLI preflight, and write-back rules: see **i-issue-management** skill, chapter „Datenquellen & CLIs"
 - **Evidence-based** — every "Umgesetzt" needs a file reference or diff evidence
 - **Honest assessment** — do not mark requirements as done if the evidence is weak
 - **Include Nachträge** — requirements added via i:update count equally

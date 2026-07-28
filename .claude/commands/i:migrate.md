@@ -30,6 +30,7 @@ None.
    | `scope` | Same legacy markers. Fallback: `Medium (4-16h)` |
    | `created` | Legacy marker, file creation date, or today |
    | `updated` | Today |
+   | `jira_synced` | **Do not invent.** Only add if the document contains evidence of a Jira sync (Jira comments under "Erkenntnisse"); then use that entry's date with time `00:00:00` and the local offset. Otherwise leave the field out — a missing `jira_synced` makes i:update treat all comments as new, which is the safe default. |
 
    **Required sections** (append missing sections in canonical order, empty):
    1. `## Anforderungen`
@@ -40,6 +41,7 @@ None.
    6. `## Umsetzungsplan`
    7. `## Testschritte`
    8. `## Erkenntnisse`
+   9. `## Quellen`
 
    **Section aliases** (treat as equivalent to canonical — do **not** append duplicates). Match case-insensitive, ignore leading emojis and parenthetical suffixes:
 
@@ -53,6 +55,7 @@ None.
    | `## Plan`, `## Implementierung`, `## Vorgehen` | `## Umsetzungsplan` |
    | `## Tests`, `## Test Plan`, `## Testing` | `## Testschritte` |
    | `## Findings`, `## Notizen`, `## Ergebnisse` | `## Erkenntnisse` |
+   | `## Sources`, `## Datenquellen`, `## Referenzen` | `## Quellen` |
 
    **Preserve everything that already exists** — never remove or reorder existing content. Legacy status markers (`## Status: ...`, `- **Status:** ...`, table rows) stay in the body even after `status:` is added to the frontmatter.
 

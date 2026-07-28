@@ -8,10 +8,10 @@ Structures requirements from Jira tickets into testable checklists, tracks imple
 
 | Command | What it does |
 |---------|-------------|
-| `/i:new <issue>` | Fetches a Jira ticket (or takes manual input), analyzes the codebase, and creates a structured issue document with requirements, affected areas, and an implementation plan |
-| `/i:estimate <issue>` | Creates an effort estimation in Jira wiki markup, ready to paste as a comment |
-| `/i:update <issue> <info>` | Adds findings, test feedback, new requirements, or decisions to an existing issue — syncs to Jira |
-| `/i:close <issue>` | Checks every requirement against the codebase and reports what's done, partial, or missing |
+| `/i:new <issue>` | Fetches a Jira ticket including attachments, linked Confluence pages, and parent/epic context, analyzes the codebase, and creates a structured issue document |
+| `/i:estimate <issue>` | Creates an effort estimation in Jira wiki markup — optionally posts it as a comment |
+| `/i:update <issue> <info>` | Adds findings, test feedback, new requirements, or decisions to an existing issue. Without arguments it pulls new Jira comments; with `--jira` it posts back |
+| `/i:close <issue>` | Checks every requirement against the codebase, reports what's done, partial, or missing, and optionally transitions the Jira ticket |
 | `/i:list` | Shows all local issues in a table with status and progress bars |
 | `/i:resume <issue>` | Restores session context with status display — survives context compression and session restarts |
 | `/i:migrate` | Migrates existing issues to the current format — adds missing fields and sections |
@@ -64,18 +64,40 @@ To remove:
 ## Requirements
 
 - [Claude Code](https://claude.ai/code)
-- [jira-cli](https://github.com/ankitpokhrel/jira-cli) (optional — for automatic ticket fetching)
+- [jira-cli](https://github.com/ankitpokhrel/jira-cli) — automatic ticket fetching, comment sync, and write-back. Without it, ticket content has to be pasted manually.
+- [confluence-cli](https://github.com/pchuri/confluence-cli) (optional) — reads Confluence pages linked from a ticket. Configure with `confluence init`; `export CONFLUENCE_READ_ONLY=true` is recommended, since nothing here ever writes to Confluence.
+- [md-annotator](https://www.npmjs.com/package/md-annotator) (optional) — browser review of the issue document in `/i:new`. Skipped when not installed.
+- Node.js — for the Kanban board.
+
+### Attachment download (`~/.netrc`)
+
+`/i:new` downloads images and PDFs from a ticket so they can actually be evaluated as requirements. Authentication goes through `~/.netrc`, which keeps the API token out of command lines, environment variables, and config files:
+
+```
+machine your-site.atlassian.net
+  login you@example.com
+  password <atlassian-api-token>
+```
+
+```bash
+chmod 600 ~/.netrc
+```
+
+Without this entry, attachments are listed but not downloaded, and you'll be asked to paste images into the chat instead.
 
 ## How it works
 
 Issue documents are Markdown files stored in `.claude/issues/<ISSUE-KEY>.md` within your project. They are **not committed to git** — they're local working documents that persist between Claude Code sessions.
 
 Each document has:
-- **Frontmatter** with status, dates, and complexity
+- **Frontmatter** with status, dates, complexity, and the `jira_synced` timestamp
 - **Anforderungen** (requirements) as checkboxes — the single source of truth for progress
 - **Betroffene Bereiche** (affected areas) with file paths
 - **Entscheidungen** (decisions) with dates and reasoning
 - **Erkenntnisse** (findings) added during implementation
+- **Quellen** (sources) — ticket, parent, Confluence pages with version, attachment paths
+
+Downloaded attachments live next to the documents in `.claude/issues/attachments/<ISSUE-KEY>/` and are equally local-only.
 
 ## License
 

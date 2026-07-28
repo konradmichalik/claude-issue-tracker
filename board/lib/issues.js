@@ -191,6 +191,8 @@ updated: ${today}
 ## Testschritte
 
 ## Erkenntnisse
+
+## Quellen
 `
   writeFileSync(filePath, content, 'utf-8')
 }

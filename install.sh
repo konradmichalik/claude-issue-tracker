@@ -23,4 +23,23 @@ echo "  Linked skill: i-issue-management"
 (cd "$SCRIPT_DIR/board" && npm install --silent && npm link --silent)
 echo "  Linked board: issue-board"
 
-echo "Done. Commands available: /i:new, /i:estimate, /i:update, /i:close, /i:list, /i:resume, /i:board"
+echo ""
+echo "Checking optional integrations:"
+if command -v jira >/dev/null 2>&1 && jira me >/dev/null 2>&1; then
+  echo "  jira-cli: ok"
+else
+  echo "  jira-cli: missing or not authenticated — tickets must be pasted manually (see README)"
+fi
+if command -v confluence >/dev/null 2>&1 && confluence spaces -l 1 --json >/dev/null 2>&1; then
+  echo "  confluence-cli: ok"
+else
+  echo "  confluence-cli: missing or not configured — linked Confluence pages will be skipped (see README)"
+fi
+if [ -r "$HOME/.netrc" ]; then
+  echo "  ~/.netrc: present — attachment downloads enabled"
+else
+  echo "  ~/.netrc: missing — ticket attachments cannot be downloaded (see README)"
+fi
+
+echo ""
+echo "Done. Commands available: /i:new, /i:estimate, /i:update, /i:close, /i:list, /i:resume, /i:migrate, /i:board"
