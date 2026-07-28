@@ -19,7 +19,7 @@ None.
    - If directory is empty or doesn't exist: `Keine Issue-Dokumente vorhanden. Starte mit /i:new <issue-key>.`
 
 3. **Parse each document**
-   - Extract frontmatter: `issue`, `status`, `updated`, `complexity`
+   - Extract frontmatter: `key`, `status`, `updated`, `complexity` (legacy documents may still use `issue:` instead of `key:` — see /i:migrate)
    - Count requirements: total checkboxes and checked checkboxes in "Anforderungen"
    - Calculate progress percentage
 
