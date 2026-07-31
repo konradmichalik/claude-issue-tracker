@@ -22,7 +22,7 @@ Update an existing issue document — add information or sync from Jira.
    - **Technische Erkenntnis** — insight gained during implementation (API behavior, limitation, workaround)
    - **Entscheidung** — a decision made about approach, scope, or trade-off
 
-3. **Add to the correct section** (see classification table in **i-issue-management** skill)
+3. **Add to the correct section** (see classification table in `.claude/skills/i-issue-management/SKILL.md`)
 
 4. **Update metadata**
    - Set `updated` date in frontmatter
@@ -84,5 +84,5 @@ Update an existing issue document — add information or sync from Jira.
 - **Append-only** — Jira-Sync fügt nur hinzu, ändert nie bestehende Einträge
 - **Local by default** — writing to Jira happens only after the user confirms the exact text
 - **`jira_synced` is the sync cutoff** — never use `updated` for the comment delta; it also moves on local edits and is only day-accurate
-- Data sources, CLI preflight, and write-back rules: see **i-issue-management** skill, chapter „Datenquellen & CLIs"
-- Issue document format, lifecycle, worktree-safety, and shared conventions: see **i-issue-management** skill
+- Data sources, CLI preflight, and write-back rules: read `.claude/skills/i-issue-management/SKILL.md` directly (`Read` tool), chapter „Datenquellen & CLIs"
+- Issue document format, lifecycle, worktree-safety, and shared conventions: read `.claude/skills/i-issue-management/SKILL.md` directly (`Read` tool)

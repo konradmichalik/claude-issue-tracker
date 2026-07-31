@@ -1,6 +1,6 @@
 # i:migrate
 
-Migrate existing issue documents to the current format defined in the i-issue-management skill.
+Migrate existing issue documents to the current format defined in `.claude/skills/i-issue-management/SKILL.md`.
 
 ## Arguments
 
@@ -79,4 +79,4 @@ None.
 - **Never reorder existing sections** — append missing sections after all existing content
 - **Preserve checkbox states** — `[x]` stays `[x]`
 - **Dry-run first** — show the planned changes table and ask for confirmation before writing
-- Issue document format, lifecycle, worktree-safety, and shared conventions: see **i-issue-management** skill
+- Issue document format, lifecycle, worktree-safety, and shared conventions: read `.claude/skills/i-issue-management/SKILL.md` directly (`Read` tool)

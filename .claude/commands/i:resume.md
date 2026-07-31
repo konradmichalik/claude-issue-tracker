@@ -76,4 +76,4 @@ When used as the last action before ending a session, include:
 - **Timestamped** — always include date AND time (HH:MM) to distinguish multiple breadcrumbs per day
 - **Actionable** — "Nächster Schritt" must be specific enough to resume without re-reading the full context
 - **Compact** — max 5 lines per breadcrumb, no prose
-- Issue document format, lifecycle, worktree-safety, and shared conventions: see **i-issue-management** skill
+- Issue document format, lifecycle, worktree-safety, and shared conventions: read `.claude/skills/i-issue-management/SKILL.md` directly (`Read` tool)

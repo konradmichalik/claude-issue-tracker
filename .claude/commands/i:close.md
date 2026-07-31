@@ -81,9 +81,9 @@ Check Definition of Done — verify all requirements and close the issue.
 
 - **Read-only on codebase** — this command only analyzes, never modifies code
 - **No transition without confirmation** — and never while requirements are open
-- Data sources, CLI preflight, and write-back rules: see **i-issue-management** skill, chapter „Datenquellen & CLIs"
+- Data sources, CLI preflight, and write-back rules: read `.claude/skills/i-issue-management/SKILL.md` directly (`Read` tool), chapter „Datenquellen & CLIs"
 - **Evidence-based** — every "Umgesetzt" needs a file reference or diff evidence
 - **Honest assessment** — do not mark requirements as done if the evidence is weak
 - **Include Nachträge** — requirements added via i:update count equally
 - **Actionable** — if something is missing, say what specifically needs to be done
-- Issue document format, lifecycle, worktree-safety, and shared conventions: see **i-issue-management** skill
+- Issue document format, lifecycle, worktree-safety, and shared conventions: read `.claude/skills/i-issue-management/SKILL.md` directly (`Read` tool)

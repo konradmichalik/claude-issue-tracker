@@ -55,4 +55,4 @@ None.
 - **Quick overview** — no detailed content, just the table
 - **No arguments needed** — always shows all issues
 - **Output as plain text** — render the table directly, not inside a code block
-- Issue document format, lifecycle, worktree-safety, and shared conventions: see **i-issue-management** skill
+- Issue document format, lifecycle, worktree-safety, and shared conventions: read `.claude/skills/i-issue-management/SKILL.md` directly (`Read` tool)

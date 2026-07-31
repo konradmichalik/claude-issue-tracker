@@ -100,5 +100,5 @@ Create a new issue document for a Jira ticket — gather all information, assess
 - **Read-only externally** — i:new never writes to Jira or Confluence
 - **Attachments are requirements** — download and actually look at them; delegating to the user is the fallback, not the default
 - **Name what is missing** — unfetched attachments, unread Confluence pages, and truncated comments belong in the output, not in silence
-- Data sources, CLI preflight, jq snippets, and attachment handling: see **i-issue-management** skill, chapter „Datenquellen & CLIs"
-- Issue document format, lifecycle, worktree-safety, and shared conventions: see **i-issue-management** skill
+- Data sources, CLI preflight, jq snippets, and attachment handling: read `.claude/skills/i-issue-management/SKILL.md` directly (`Read` tool), chapter „Datenquellen & CLIs"
+- Issue document format, lifecycle, worktree-safety, and shared conventions: read `.claude/skills/i-issue-management/SKILL.md` directly (`Read` tool)

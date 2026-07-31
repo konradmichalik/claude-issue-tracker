@@ -120,5 +120,5 @@ Note: The "Referenzen" section is **only included if relevant previous work was 
 - Estimate in **hours** (realistic, include buffer). Total also in **Jira days (1 Tag = 8 Std.)**. Tasks can be < 1h (e.g., 0,5 Std.)
 - **Jira wiki markup** — *bold*, _italic_, {{monospace}}, {quote}. No code fences around output.
 - **Never post unasked** — the Jira comment is only created after explicit confirmation in step 10
-- Data sources, CLI preflight, and write-back rules: see **i-issue-management** skill, chapter „Datenquellen & CLIs"
-- Issue document format, lifecycle, worktree-safety, and shared conventions: see **i-issue-management** skill
+- Data sources, CLI preflight, and write-back rules: read `.claude/skills/i-issue-management/SKILL.md` directly (`Read` tool), chapter „Datenquellen & CLIs"
+- Issue document format, lifecycle, worktree-safety, and shared conventions: read `.claude/skills/i-issue-management/SKILL.md` directly (`Read` tool)
