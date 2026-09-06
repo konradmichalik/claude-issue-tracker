@@ -1,0 +1,313 @@
+#!/usr/bin/env node
+import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { join, dirname, basename, resolve } from 'node:path'
+
+import { parseRef } from '../lib/ref.js'
+import {
+  resolveIssuesDir, readIssue, resolveActiveIssue, setFrontmatter,
+  parseFrontmatter, getSection, parseRequirements, listIssues
+} from '../lib/doc.js'
+import { fetchJira, postJiraComment, moveJiraStatus, preflightJira } from '../lib/adapters/jira.js'
+import { fetchGithub, postGithubComment, closeGithub, preflightGithub } from '../lib/adapters/github.js'
+import { fetchRedmine } from '../lib/adapters/redmine.js'
+import { normalizeJira, normalizeGithub, normalizeRedmine } from '../lib/normalize.js'
+import { readCache, writeCache } from '../lib/cache.js'
+import { diffPayloads, renderDiff } from '../lib/diff.js'
+import { renderReport } from '../lib/render.js'
+import { recall } from '../lib/recall.js'
+import { findClaudeIssuesDirs, migrateDir, ensureGlobalGitignoreEntry } from '../lib/migrate.js'
+
+const [, , cmd, ...args] = process.argv
+
+function die(msg) {
+  console.error(msg)
+  process.exit(1)
+}
+
+function fetchByRef(ref) {
+  if (ref.tracker === 'jira') return normalizeJira(fetchJira(ref.key))
+  if (ref.tracker === 'github') return normalizeGithub(fetchGithub(ref.owner, ref.repo, ref.number), ref.ref)
+  if (ref.tracker === 'redmine') return normalizeRedmine(fetchRedmine(ref.host, ref.number), ref.host, ref.number)
+  throw new Error(`Kein Tracker für "${ref.ref}" — nichts zu holen.`)
+}
+
+function preflight(tracker) {
+  if (tracker === 'jira' && !preflightJira()) die('jira-cli fehlt oder ist nicht authentifiziert (`jira me` schlägt fehl).')
+  if (tracker === 'github' && !preflightGithub()) die('gh fehlt oder ist nicht authentifiziert (`gh auth status` schlägt fehl).')
+}
+
+function cmdRef() {
+  const input = args[0]
+  if (!input) die('Nutzung: i ref <eingabe>')
+  console.log(JSON.stringify(parseRef(input), null, 2))
+}
+
+function cmdActive() {
+  const dir = resolveIssuesDir()
+  const active = resolveActiveIssue(dir)
+  if (!active) { process.exit(1) }
+  console.log(JSON.stringify(active, null, 2))
+}
+
+function cmdFetch() {
+  const input = args[0]
+  if (!input) die('Nutzung: i fetch <ref>')
+  const ref = parseRef(input)
+  if (ref.tracker === 'none') die('Kein Tracker erkannt — nichts zu holen.')
+  preflight(ref.tracker)
+  const payload = fetchByRef(ref)
+  const dir = resolveIssuesDir()
+  writeCache(dir, payload.key, payload)
+  console.log(JSON.stringify(payload, null, 2))
+}
+
+function cmdSync() {
+  const input = args[0]
+  if (!input) die('Nutzung: i sync <ref>')
+  const ref = parseRef(input)
+  if (ref.tracker === 'none') die('tracker: none — nichts zu synchronisieren.')
+  preflight(ref.tracker)
+  const dir = resolveIssuesDir()
+  const prev = readCache(dir, ref.key)
+  const next = fetchByRef(ref)
+  const diff = diffPayloads(prev, next)
+  writeCache(dir, ref.key, next)
+  console.log(renderDiff(ref.key, prev?.fetched_at?.slice(0, 10), diff))
+}
+
+function cmdAttach() {
+  const input = args[0]
+  const destIdx = args.indexOf('--dest')
+  const dest = destIdx !== -1 ? args[destIdx + 1] : null
+  if (!input || !dest) die('Nutzung: i attach <ref> --dest <dir>')
+  const ref = parseRef(input)
+  if (ref.tracker === 'none') die('tracker: none — keine Anhänge zu laden.')
+  const dir = resolveIssuesDir()
+  const cached = readCache(dir, ref.key) || fetchByRef(ref)
+  mkdirSync(dest, { recursive: true })
+  const maxBytes = 10 * 1024 * 1024
+  const downloadable = (cached.attachments || []).filter(a =>
+    ((a.mime || '').startsWith('image/') || a.mime === 'application/pdf') && (a.size || 0) <= maxBytes
+  )
+  const results = []
+  for (const a of downloadable) {
+    const target = join(dest, a.filename)
+    try {
+      execFileSync('curl', ['-fsSL', '--netrc', '-o', target, a.url])
+      results.push({ filename: a.filename, ok: true })
+    } catch (e) {
+      results.push({ filename: a.filename, ok: false, error: e.message })
+    }
+  }
+  console.log(JSON.stringify({ downloaded: results, skipped: (cached.attachments || []).length - downloadable.length }, null, 2))
+}
+
+function cmdPost() {
+  const input = args[0]
+  const fIdx = args.indexOf('-f')
+  const bodyFile = fIdx !== -1 ? args[fIdx + 1] : null
+  const close = args.includes('--close')
+  const stateIdx = args.indexOf('--state')
+  const state = stateIdx !== -1 ? args[stateIdx + 1] : null
+  if (!input || !bodyFile) die('Nutzung: i post <ref> -f <datei> [--close] [--state <state>]')
+  const ref = parseRef(input)
+  preflight(ref.tracker)
+  if (ref.tracker === 'jira') {
+    postJiraComment(ref.key, bodyFile)
+    if (state) moveJiraStatus(ref.key, state)
+  } else if (ref.tracker === 'github') {
+    postGithubComment(ref.owner, ref.repo, ref.number, bodyFile)
+    if (close) closeGithub(ref.owner, ref.repo, ref.number)
+  } else {
+    die(`Schreibzugriff für Tracker "${ref.tracker}" ist nicht implementiert.`)
+  }
+  console.log(`Gepostet an ${ref.ref}.`)
+}
+
+function cmdSessions() {
+  const input = args[0]
+  const dir = resolveIssuesDir()
+  const target = input ? parseRef(input).filename : resolveActiveIssue(dir)?.file
+  if (!target) die('Kein Issue gefunden.')
+  const content = readIssue(dir, target)
+  if (!content) die(`Kein Dokument für ${target}.`)
+  const fm = parseFrontmatter(content)
+  console.log(JSON.stringify(fm.sessions || [], null, 2))
+}
+
+function cmdSessionAdd() {
+  const [input, sessionId, branch] = args
+  if (!input || !sessionId) die('Nutzung: i session-add <ref> <sessionId> [branch]')
+  const dir = resolveIssuesDir()
+  const filename = parseRef(input).filename
+  const content = readIssue(dir, filename)
+  if (!content) die(`Kein Dokument für ${input}.`)
+  const fm = parseFrontmatter(content)
+  const today = new Date().toISOString().slice(0, 10)
+  const entry = `${today} ${sessionId.slice(0, 8)} ${branch || fm.branch || ''}`.trim()
+  const sessions = [...(fm.sessions || []), entry]
+  const updated = setFrontmatter(content, { sessions })
+  writeFileSync(join(dir, filename), updated, 'utf-8')
+  console.log(`Session vermerkt bei ${filename}: ${entry}`)
+}
+
+function cmdRecall() {
+  const key = args[0]
+  if (!key) die('Nutzung: i recall <key>')
+  const hits = recall(key)
+  if (!hits.length) { console.log(`Keine Treffer für ${key}.`); return }
+  for (const h of hits) {
+    console.log(`${(h.timestamp || '').slice(0, 16).replace('T', ' ')}  ${h.sessionId}  ${h.project}  "${h.snippet}"`)
+  }
+}
+
+function cmdStatus() {
+  const dir = resolveIssuesDir()
+  const active = resolveActiveIssue(dir)
+  if (!active) process.exit(0)
+  const content = readIssue(dir, active.file)
+  const fm = parseFrontmatter(content)
+  const requirements = parseRequirements(content)
+  const summary = getSection(content, 'Zusammenfassung') || ''
+  const openQuestions = getSection(content, 'Offene Fragen') || ''
+  const breadcrumbs = [...content.matchAll(/^- .*🔖.*$/gm)]
+  const lastBreadcrumb = breadcrumbs.at(-1)?.[0] || ''
+  console.log(`Aktives Issue: ${fm.key || active.key} — ${fm.title || ''}`)
+  const progress = requirements.length ? `  ·  Anforderungen: ${requirements.filter(r => r.checked).length}/${requirements.length}` : ''
+  console.log(`Status: ${fm.status}${fm.branch ? `  ·  Branch: ${fm.branch}` : ''}${progress}`)
+  if (summary) console.log(`\n${summary.split('\n').slice(0, 3).join('\n')}`)
+  if (openQuestions) console.log(`\nOffene Fragen:\n${openQuestions}`)
+  if (lastBreadcrumb) console.log(`\nLetzter Breadcrumb:\n${lastBreadcrumb}`)
+}
+
+function cmdList() {
+  const dir = resolveIssuesDir()
+  const issues = listIssues(dir).sort((a, b) => (b.updated || '').localeCompare(a.updated || ''))
+  if (!issues.length) { console.log(`Keine Issues in ${dir}`); return }
+  const rows = issues.map(i => ({
+    key: i.key,
+    status: i.status || '',
+    tracker: i.tracker || '',
+    progress: `${i.progress.checked}/${i.progress.total}`,
+    updated: i.updated || ''
+  }))
+  const widths = ['key', 'status', 'tracker', 'progress', 'updated']
+    .reduce((w, col) => ({ ...w, [col]: Math.max(col.length, ...rows.map(r => r[col].length)) }), {})
+  const line = r => ['key', 'status', 'tracker', 'progress', 'updated'].map(c => r[c].padEnd(widths[c])).join('  ')
+  console.log(line({ key: 'KEY', status: 'STATUS', tracker: 'TRACKER', progress: 'ANFORDERUNGEN', updated: 'AKTUALISIERT' }))
+  for (const r of rows) console.log(line(r))
+}
+
+function cmdCheckNote() {
+  let sessionId = ''
+  try { sessionId = JSON.parse(readFileSync(0, 'utf-8')).session_id || '' } catch { /* no usable stdin payload */ }
+
+  const dir = resolveIssuesDir()
+  const active = resolveActiveIssue(dir)
+  if (!active) return
+
+  let dirty = false
+  try { dirty = execFileSync('git', ['status', '--porcelain'], { encoding: 'utf-8' }).trim().length > 0 } catch { /* not a git repo */ }
+  if (!dirty) return
+
+  const content = readIssue(dir, active.file)
+  const today = new Date().toISOString().slice(0, 10)
+  const erkenntnisse = getSection(content, 'Erkenntnisse') || ''
+  const notedToday = erkenntnisse.split('\n').some(l => l.trim().startsWith(`- ${today}`))
+  if (notedToday) return
+
+  const nagDir = join(dir, '.cache', '.stop-nag')
+  const nagFile = join(nagDir, `${sessionId || 'unknown'}-${active.key}`)
+  if (existsSync(nagFile)) return
+  mkdirSync(nagDir, { recursive: true })
+  writeFileSync(nagFile, today, 'utf-8')
+
+  console.log(JSON.stringify({
+    decision: 'block',
+    reason: `Änderungen an ${active.key} sind ungesichert, und „Erkenntnisse" hat heute noch keinen Eintrag. Kurzer Breadcrumb per /i:note, bevor die Session endet — danach wird nicht erneut nachgefragt.`
+  }))
+}
+
+function cmdSet() {
+  const [input, kv] = args
+  if (!input || !kv || !kv.includes('=')) die('Nutzung: i set <ref> <feld>=<wert>')
+  const dir = resolveIssuesDir()
+  const filename = parseRef(input).filename
+  const content = readIssue(dir, filename)
+  if (!content) die(`Kein Dokument für ${input}.`)
+  const eq = kv.indexOf('=')
+  const field = kv.slice(0, eq)
+  const value = kv.slice(eq + 1)
+  const updated = setFrontmatter(content, { [field]: value })
+  writeFileSync(join(dir, filename), updated, 'utf-8')
+  console.log(`${filename}: ${field} = ${value}`)
+}
+
+function cmdReportTemplate() {
+  const langIdx = args.indexOf('--lang')
+  const kindIdx = args.indexOf('--kind')
+  const jsonIdx = args.indexOf('--json')
+  const lang = langIdx !== -1 ? args[langIdx + 1] : 'de'
+  const kind = kindIdx !== -1 ? args[kindIdx + 1] : 'fortschritt'
+  const jsonFile = jsonIdx !== -1 ? args[jsonIdx + 1] : null
+  if (!jsonFile) die('Nutzung: i report-template --lang <de|en> --kind <k> --json <datei>')
+  const data = JSON.parse(readFileSync(jsonFile, 'utf-8'))
+  console.log(renderReport({ lang, kind, ...data }))
+}
+
+function cmdMigrateOnce() {
+  const scanIdx = args.indexOf('--scan')
+  if (scanIdx === -1) die('Nutzung: i migrate-once --scan <verzeichnis> [--apply] — kein impliziter Home-weiter Scan, das Kommando verschiebt Dateien.')
+  const scanRoot = args[scanIdx + 1]
+  const apply = args.includes('--apply')
+  const dirs = findClaudeIssuesDirs(scanRoot)
+  if (!dirs.length) { console.log(`Keine .claude/issues gefunden unter ${scanRoot}.`); return }
+  for (const oldDir of dirs) {
+    const result = migrateDir(oldDir, { apply })
+    const project = basename(dirname(dirname(resolve(oldDir))))
+    console.log(`\n${project}  (${oldDir})`)
+    for (const p of result.plans) {
+      console.log(`  ${p.filePath.split('/').pop()}: ${p.changes.length ? p.changes.join(', ') : 'keine Änderung nötig'}`)
+    }
+    if (apply) {
+      console.log(`  → verschoben nach ${result.newDir}`)
+      console.log(`  → .gitignore (Projekt): ${result.gitignore.changed ? '+.issues/' : 'bereits vorhanden'}`)
+    }
+  }
+  if (apply) {
+    const gi = ensureGlobalGitignoreEntry()
+    console.log(gi.changed ? `\n~/.gitignore ergänzt um .issues/` : `\n~/.gitignore enthält .issues/ bereits`)
+  } else {
+    console.log('\nDry-run — erneut mit --apply ausführen, um zu schreiben.')
+  }
+}
+
+const commands = {
+  ref: cmdRef,
+  active: cmdActive,
+  fetch: cmdFetch,
+  sync: cmdSync,
+  attach: cmdAttach,
+  post: cmdPost,
+  sessions: cmdSessions,
+  'session-add': cmdSessionAdd,
+  recall: cmdRecall,
+  status: cmdStatus,
+  list: cmdList,
+  'check-note': cmdCheckNote,
+  set: cmdSet,
+  'report-template': cmdReportTemplate,
+  'migrate-once': cmdMigrateOnce
+}
+
+if (!cmd || !commands[cmd]) {
+  console.error(`Nutzung: i <${Object.keys(commands).join('|')}> ...`)
+  process.exit(cmd ? 1 : 0)
+}
+
+try {
+  commands[cmd]()
+} catch (e) {
+  die(e.message)
+}

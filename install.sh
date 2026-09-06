@@ -1,45 +1,21 @@
 #!/usr/bin/env bash
+# Registers this repo as a local Claude Code marketplace and installs the "i"
+# plugin globally (scope: user — every project on this machine).
+#
+# Verified against Claude Code 2.1.263. `marketplace add` requires an explicit
+# "./" prefix for a relative local path — a bare "." is rejected.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-CLAUDE_DIR="$HOME/.claude"
+cd "$SCRIPT_DIR"
 
-echo "Installing claude-issue-tracker..."
+echo "Registering marketplace 'issue-tracker' from $SCRIPT_DIR ..."
+claude plugin marketplace add ./
 
-# Commands
-mkdir -p "$CLAUDE_DIR/commands"
-for cmd in "$SCRIPT_DIR/.claude/commands/"i:*.md; do
-  name="$(basename "$cmd")"
-  ln -sf "$cmd" "$CLAUDE_DIR/commands/$name"
-  echo "  Linked command: $name"
-done
+echo
+echo "Installing plugin i@issue-tracker (scope: user) ..."
+claude plugin install i@issue-tracker --scope user -y
 
-# Skills
-mkdir -p "$CLAUDE_DIR/skills"
-ln -sfn "$SCRIPT_DIR/.claude/skills/i-issue-management" "$CLAUDE_DIR/skills/i-issue-management"
-echo "  Linked skill: i-issue-management"
-
-# Board
-(cd "$SCRIPT_DIR/board" && npm install --silent && npm link --silent)
-echo "  Linked board: issue-board"
-
-echo ""
-echo "Checking optional integrations:"
-if command -v jira >/dev/null 2>&1 && jira me >/dev/null 2>&1; then
-  echo "  jira-cli: ok"
-else
-  echo "  jira-cli: missing or not authenticated — tickets must be pasted manually (see README)"
-fi
-if command -v confluence >/dev/null 2>&1 && confluence spaces -l 1 --json >/dev/null 2>&1; then
-  echo "  confluence-cli: ok"
-else
-  echo "  confluence-cli: missing or not configured — linked Confluence pages will be skipped (see README)"
-fi
-if [ -r "$HOME/.netrc" ]; then
-  echo "  ~/.netrc: present — attachment downloads enabled"
-else
-  echo "  ~/.netrc: missing — ticket attachments cannot be downloaded (see README)"
-fi
-
-echo ""
-echo "Done. Commands available: /i:new, /i:estimate, /i:update, /i:close, /i:list, /i:resume, /i:migrate, /i:board"
+echo
+echo "Done. Restart Claude Code (or start a new session) for /i:new, /i:update, /i:report, /i:note and the hooks to take effect."
+echo "Verify anytime with: claude plugin list"

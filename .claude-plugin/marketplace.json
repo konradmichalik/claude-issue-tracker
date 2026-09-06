@@ -1,0 +1,14 @@
+{
+  "name": "issue-tracker",
+  "description": "Local, tracker-agnostic issue tracking for Claude Code",
+  "owner": {
+    "name": "konradmichalik"
+  },
+  "plugins": [
+    {
+      "name": "i",
+      "source": ".",
+      "description": "Local, tracker-agnostic issue tracking for Claude Code — Jira, GitHub, Redmine, or no tracker at all."
+    }
+  ]
+}
