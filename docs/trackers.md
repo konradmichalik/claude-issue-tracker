@@ -13,6 +13,14 @@ resolves to without touching the network.
 | `https://forge.typo3.org/issues/110434` | Redmine | `RM-110434.md` |
 | free text | none — a regular, first-class case | `<slug>.md` |
 
+> [!WARNING]
+> A bare number always resolves as a GitHub issue in *this* project's `origin`
+> remote — right if you're in the matching repo, silently wrong otherwise.
+> Redmine has no bare-number form at all: an unqualified number never matches
+> the Redmine pattern and falls through to the GitHub branch above instead of
+> failing loudly. The full `forge.typo3.org/issues/…` URL is the only input
+> that works for Redmine — there is no shorthand to fall back to.
+
 `GH-` and `RM-` are deliberate prefixes, not the bare issue number: filenames
 stay greppable across tools that don't know the tracker (`bin/i recall GH-101`
 finds it in a Claude Code transcript; a bare `101` would match too much).
