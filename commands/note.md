@@ -15,16 +15,17 @@ Also the command the Stop hook points you to when it holds a session back: uncom
 ## Workflow
 
 1. Resolve the active issue via `${CLAUDE_PLUGIN_ROOT}/bin/i active`. None found: tell the user, stop.
-2. If `text` is generic or empty, generate the breadcrumb from recent tool calls and file changes in this session — max 3-4 bullets.
-3. Append to `Erkenntnisse`:
+2. Check whether the current session's work is actually about that issue. If it isn't (an unrelated quick fix, exploration, or chore), say so and stop — don't force a breadcrumb onto an issue it doesn't belong to.
+3. If `text` is generic or empty, generate the breadcrumb from recent tool calls and file changes in this session — max 3-4 bullets.
+4. Append to `Erkenntnisse`:
    ```
    - <date> HH:MM 🔖 <summary>
      - Erledigt: <what was completed>
      - In Arbeit: <current state>
      - Nächster Schritt: <specific next action>
    ```
-4. Update `updated`.
-5. Confirm, and remind: "Dieser Breadcrumb bleibt erhalten, auch wenn der Context komprimiert wird."
+5. Update `updated`.
+6. Confirm, and remind: "Dieser Breadcrumb bleibt erhalten, auch wenn der Context komprimiert wird."
 
 ## Rules
 

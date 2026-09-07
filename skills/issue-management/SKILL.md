@@ -232,3 +232,4 @@ Beim Sessionende prüft `bin/i check-note`: aktives Issue vorhanden, Working Tre
 - **Quellen belegen**: jede externe Quelle gehört in den Abschnitt „Quellen"
 - **Keine Erfindungen**: bei unzureichenden Infos nachfragen statt Scope erfinden
 - **Nie still degradieren**: was nicht geholt werden konnte, gehört sichtbar in die Ausgabe
+- **Nicht jede Aufgabe braucht ein Issue**: Ein aktives Issue verpflichtet nicht dazu, jede Session-Erkenntnis dort zu verorten. Bei themenfremden Aufgaben (Quick Fix, Exploration, Arbeit ohne Tracker-Bezug) kein Issue erzwingen und keine Erkenntnisse an ein unpassendes Issue hängen — einfach ohne Issue-Zuordnung arbeiten.

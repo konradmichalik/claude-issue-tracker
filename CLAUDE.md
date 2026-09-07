@@ -119,6 +119,7 @@ Full frontmatter schema, ref-resolution table, section conventions, and report t
 - **Check off only after verification; never reformulate or delete a requirement's text.** Both `/i:report` and `bin/i status`/`list` trust the checkbox as a claim of fact, not a claim of effort.
 - **No implementation before confirmation** — every decision point waits for user input.
 - **No invention** — when information is insufficient, ask rather than inferring scope.
+- **Not every task has an issue** — an active issue doesn't obligate every session to route through it. For work unrelated to that issue (a quick fix, exploration, a chore with no tracker relevance), don't force-search for a matching issue and don't attach findings to one that doesn't fit.
 - **`.issues/` is never committed** — local working documents plus downloaded `attachments/` and the `.cache/` sync state. `migrate-once --apply` guards this two ways: `~/.gitignore` (this machine) and the target project's own `.gitignore` (everyone who ever clones it). The global entry alone is not enough for a project other people can clone.
 - **Credentials via `~/.netrc`** — Jira attachment downloads use `curl --netrc`, so no token appears in command lines, environment, or config. Never read the keychain or inline a token.
 - **Shell out via argument arrays, never string interpolation** — every adapter uses `execFileSync(bin, [args])`, not `execSync(\`bin ${arg}\`)`. This is not negotiable when adding a fourth tracker.
