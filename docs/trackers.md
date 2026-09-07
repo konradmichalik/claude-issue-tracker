@@ -43,7 +43,8 @@ bin/i ref 22
 
 > [!IMPORTANT]
 > Missing a tracker's CLI does not abort `/i:new` — it reports the gap once
-> and continues with whatever text you supplied.
+> and continues with whatever text you supplied. Check all of the below at
+> once with [`bin/i doctor`](cli-reference.md#bini-doctor).
 
 - **Jira** — [jira-cli](https://github.com/ankitpokhrel/jira-cli), authenticated (`jira me`).
 - **GitHub** — [gh](https://cli.github.com/), authenticated (`gh auth status`).

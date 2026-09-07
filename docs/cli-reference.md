@@ -31,6 +31,28 @@ open questions, and the most recent breadcrumb. Silent, exit 0, if there's no
 `.issues/` or no active issue — it runs in every project, not just ones using
 this tracker.
 
+## `bin/i doctor`
+
+```bash
+bin/i doctor
+```
+
+```text
+node                       v26.5.0
+git                        ok
+curl (Redmine)             ok
+jira-cli                   ok
+gh (GitHub)                fehlt oder nicht authentifiziert (`gh auth status`)
+confluence-cli (optional)  fehlt oder nicht konfiguriert
+```
+
+Checks every CLI dependency once and reports which trackers are actually
+usable — worth running right after [installation](../README.md#-installation),
+before finding out mid-`/i:new` instead. Reuses the same `jira me` / `gh auth
+status` checks the commands themselves run before a fetch or post; see
+[per-tracker requirements](trackers.md#per-tracker-requirements) for what each
+line depends on.
+
 ## `bin/i active`
 
 ```bash

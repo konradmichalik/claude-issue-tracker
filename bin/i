@@ -37,6 +37,28 @@ function preflight(tracker) {
   if (tracker === 'github' && !preflightGithub()) die('gh fehlt oder ist nicht authentifiziert (`gh auth status` schlägt fehl).')
 }
 
+function hasBinary(bin) {
+  try { execFileSync('which', [bin], { stdio: 'ignore' }); return true } catch { return false }
+}
+
+function confluenceReady() {
+  if (!hasBinary('confluence')) return false
+  try { execFileSync('confluence', ['spaces', '-l', '1', '--json'], { stdio: 'ignore' }); return true } catch { return false }
+}
+
+function cmdDoctor() {
+  const rows = [
+    ['node', process.version],
+    ['git', hasBinary('git') ? 'ok' : 'fehlt'],
+    ['curl (Redmine)', hasBinary('curl') ? 'ok' : 'fehlt'],
+    ['jira-cli', preflightJira() ? 'ok' : 'fehlt oder nicht authentifiziert (`jira me`)'],
+    ['gh (GitHub)', preflightGithub() ? 'ok' : 'fehlt oder nicht authentifiziert (`gh auth status`)'],
+    ['confluence-cli (optional)', confluenceReady() ? 'ok' : 'fehlt oder nicht konfiguriert']
+  ]
+  const width = Math.max(...rows.map(r => r[0].length))
+  for (const [name, status] of rows) console.log(`${name.padEnd(width)}  ${status}`)
+}
+
 function cmdRef() {
   const input = args[0]
   if (!input) die('Nutzung: i ref <eingabe>')
@@ -295,6 +317,7 @@ const commands = {
   recall: cmdRecall,
   status: cmdStatus,
   list: cmdList,
+  doctor: cmdDoctor,
   'check-note': cmdCheckNote,
   set: cmdSet,
   'report-template': cmdReportTemplate,

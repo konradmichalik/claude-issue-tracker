@@ -18,4 +18,5 @@ claude plugin install i@issue-tracker --scope user -y
 
 echo
 echo "Done. Restart Claude Code (or start a new session) for /i:new, /i:update, /i:report, /i:note and the hooks to take effect."
-echo "Verify anytime with: claude plugin list"
+echo "Verify the plugin with: claude plugin list"
+echo "Verify tracker CLIs with: $SCRIPT_DIR/bin/i doctor"

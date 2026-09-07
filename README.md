@@ -31,7 +31,8 @@ cd claude-issue-tracker
 Registers the repo as a local Claude Code marketplace and installs the `i`
 plugin at `--scope user` — global, every project on this machine. Restart
 Claude Code (or start a new session) afterward for `/i:new` and the hooks to
-take effect. Verify with `claude plugin list`; remove with `./uninstall.sh`.
+take effect. Verify the plugin with `claude plugin list`, and which tracker
+CLIs are ready with `bin/i doctor`; remove with `./uninstall.sh`.
 Either way, your `.issues/` documents are untouched.
 
 Used the earlier symlink-based version? `bin/i migrate-once` moves
