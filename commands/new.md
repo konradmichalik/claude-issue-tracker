@@ -20,9 +20,9 @@ Run `${CLAUDE_PLUGIN_ROOT}/bin/i ref "<ref>"`. It returns `{tracker, key, ref, u
 - `tracker` is `jira`, `github`, `redmine`, or `none`.
 - `filename` is the target path under `.issues/<filename>`.
 
-### 2. Abort if the document already exists
+### 2. Existing document — offer to switch to /i:update
 
-If `.issues/<filename>` exists: `Issue-Dokument existiert bereits. Nutze /i:update um daran weiterzuarbeiten.` Stop.
+If `.issues/<filename>` exists, ask: `Issue-Dokument existiert bereits. Mit /i:update fortfahren?` On confirmation, hand off to `/i:update <ref> [text]` with the same arguments and stop this workflow. On decline, stop without further action.
 
 ### 3. Fetch — skip entirely if `tracker` is `none`
 
