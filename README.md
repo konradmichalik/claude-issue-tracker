@@ -3,9 +3,13 @@
 Claude Code sessions lose their working notes the moment context compacts,
 and neither a Jira ticket nor a GitHub issue is a place an agent can think out
 loud without a network round-trip and someone reviewing every comment. This
-keeps the actual working state — requirements, decisions, findings — in local
+keeps the actual working state (requirements, decisions, findings) in local
 Markdown next to the code, tracker-agnostic by design, and syncs a short
 status update back to whichever tracker (or none) the work actually lives in.
+
+> [!IMPORTANT]
+> This package is intended for use in my personal projects only. It is not
+> designed for general use.
 
 ## ✨ Features
 
@@ -35,18 +39,14 @@ take effect. Verify the plugin with `claude plugin list`, and which tracker
 CLIs are ready with `bin/i doctor`; remove with `./uninstall.sh`.
 Either way, your `.issues/` documents are untouched.
 
-Used the earlier symlink-based version? `bin/i migrate-once` moves
-`.claude/issues/` to the current layout — see
-[the CLI reference](docs/cli-reference.md#bini-migrate-once).
-
 ## 🚀 Quick start
 
 ```text
-/i:new VHWWEB-312
+/i:new PROJ-312
 ```
 
 Fetches the ticket, investigates the codebase, and creates
-`.issues/VHWWEB-312.md` once you confirm the plan.
+`.issues/PROJ-312.md` once you confirm the plan.
 
 ## ⚡ Usage
 
