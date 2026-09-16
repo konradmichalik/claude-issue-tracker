@@ -90,8 +90,16 @@ on every later one whose branch matches. `bin/i sessions <ref>` lists them;
 The `Stop` hook checks, once per session, whether the active issue has
 uncommitted changes and no `Erkenntnisse` entry for today. If both are true it
 holds the session back once with a reminder to run `/i:note`. Writing that
-entry — or a second attempt to stop in the same session — silences it; it
-never blocks twice in a row.
+entry, or a second attempt to stop in the same session, silences it; it never
+blocks twice in a row.
+
+It only blocks for an issue that is `in-progress` and was resolved by branch
+match. When the active issue comes from the fallback (newest `in-progress`
+document, no matching branch), the hook stays silent: that resolution is a
+guess, and a guess should not hold a session back. `bin/i status` and
+`bin/i list` still show the fallback, where being wrong costs nothing. It also
+stays silent without a usable session ID, since there would be no reliable
+once-per-session marker.
 
 For anything that never made it into a document at all: `bin/i recall <key>`
 searches every local Claude Code transcript for the key and prints where it

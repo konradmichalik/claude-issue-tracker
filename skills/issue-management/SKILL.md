@@ -210,7 +210,14 @@ Für Kontext, der nie ins Dokument geschrieben wurde: `bin/i recall <key>` durch
 
 ## Stop-Hook
 
-Beim Sessionende prüft `bin/i check-note`: aktives Issue vorhanden, Working Tree schmutzig, aber „Erkenntnisse" hat heute noch keinen Eintrag → die Session wird einmal mit der Bitte um `/i:note` zurückgehalten. Danach still, entweder weil der Eintrag jetzt existiert (löst die Bedingung auf) oder weil für diese Session schon einmal nachgefragt wurde (`.issues/.cache/.stop-nag/`, pro Session-ID). Blockt nie zweimal hintereinander.
+Beim Sessionende prüft `bin/i check-note`: aktives Issue über den Branch aufgelöst, Status `in-progress`, Working Tree schmutzig, aber „Erkenntnisse" hat heute noch keinen Eintrag → die Session wird einmal mit der Bitte um `/i:note` zurückgehalten. Danach still, entweder weil der Eintrag jetzt existiert (löst die Bedingung auf) oder weil für diese Session schon einmal nachgefragt wurde (`.issues/.cache/.stop-nag/`, pro Session-ID, unabhängig davon welches Issue gerade aktiv ist). Blockt nie zweimal hintereinander.
+
+Zwei Fälle, in denen der Hook bewusst still bleibt statt zu blocken:
+
+- **Aktives Issue aus dem Fallback** (jüngstes `in-progress`-Dokument, kein passender Branch). Diese Auflösung ist geraten, und eine geratene Zuordnung darf keine Session aufhalten. Ohne diese Regel springt die Erkennung beim Abschließen eines Issues auf ein beliebiges anderes, das mit der Session nichts zu tun hat.
+- **Issue nicht `in-progress`.** Der Branch-Match filtert selbst nicht auf Status. Wer nach `/i:report --close` auf dem Branch bleibt, würde sonst bei jedem Sessionende zu einem Breadcrumb auf ein fertiges Issue aufgefordert, und `/i:note` bricht in dem Fall ohnehin ab.
+
+Der Datumsvergleich läuft über das lokale Datum, nicht über UTC, weil das Modell den „Erkenntnisse"-Eintrag ebenfalls lokal datiert.
 
 ## Übersicht
 
