@@ -1,7 +1,7 @@
 {
   "name": "i",
   "description": "Local, tracker-agnostic issue tracking for Claude Code — Jira, GitHub, Redmine, or no tracker at all.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": {
     "name": "Konrad Michalik",
     "email": "km@move-elevator.de"

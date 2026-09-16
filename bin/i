@@ -222,25 +222,41 @@ function cmdList() {
 }
 
 function cmdCheckNote() {
+  // readFileSync(0) blockiert bis EOF. Auf einem TTY käme nie eines, der Hook
+  // würde hängen und damit das Sessionende verhindern.
   let sessionId = ''
-  try { sessionId = JSON.parse(readFileSync(0, 'utf-8')).session_id || '' } catch { /* no usable stdin payload */ }
+  if (!process.stdin.isTTY) {
+    try { sessionId = JSON.parse(readFileSync(0, 'utf-8')).session_id || '' } catch { /* no usable stdin payload */ }
+  }
+  // Ohne brauchbare Session-ID gibt es keinen verlässlichen Einmal-pro-Session-
+  // Marker. Dann lieber nicht blocken als unbegrenzt oft. Der Guard deckt
+  // zugleich Path Traversal und Nicht-Strings ab, bevor daraus ein Dateiname wird.
+  if (!/^[A-Za-z0-9._-]{1,128}$/.test(sessionId)) return
 
   const dir = resolveIssuesDir()
   const active = resolveActiveIssue(dir)
   if (!active) return
+  // Nur bei Branch-Match blocken. Der Fallback rät das zuletzt angefasste
+  // in-progress-Issue, und eine geratene Zuordnung darf keine Session aufhalten.
+  if (active.resolvedBy !== 'branch') return
+  // Der Branch-Match filtert selbst nicht auf Status, ein abgeschlossenes Issue
+  // auf noch ausgechecktem Branch soll aber nicht zu Breadcrumbs auffordern.
+  if (active.status !== 'in-progress') return
 
   let dirty = false
   try { dirty = execFileSync('git', ['status', '--porcelain'], { encoding: 'utf-8' }).trim().length > 0 } catch { /* not a git repo */ }
   if (!dirty) return
 
   const content = readIssue(dir, active.file)
-  const today = new Date().toISOString().slice(0, 10)
+  // Lokales Datum, nicht UTC: den Eintrag schreibt das Modell mit dem lokalen
+  // Datum, ein UTC-Vergleich würde ihn nachts stundenlang übersehen.
+  const today = new Date().toLocaleDateString('sv-SE')
   const erkenntnisse = getSection(content, 'Erkenntnisse') || ''
   const notedToday = erkenntnisse.split('\n').some(l => l.trim().startsWith(`- ${today}`))
   if (notedToday) return
 
   const nagDir = join(dir, '.cache', '.stop-nag')
-  const nagFile = join(nagDir, `${sessionId || 'unknown'}-${active.key}`)
+  const nagFile = join(nagDir, sessionId)
   if (existsSync(nagFile)) return
   mkdirSync(nagDir, { recursive: true })
   writeFileSync(nagFile, today, 'utf-8')
