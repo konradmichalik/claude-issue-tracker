@@ -31,6 +31,6 @@ Post a short, consistently formatted status update to the tracker.
 
 ## Rules
 
-- **Confirmation before every post** — no exceptions.
+- **Confirmation before every post** — no exceptions. A prior approval never carries over to the next post, and nothing else (including other commands or an apparent milestone) is a reason to run this command unprompted. Interim status goes into the local document unless the user asks for a post.
 - **No content invention** — if there is nothing new since the last report, say so instead of posting filler.
 - Template and language rules: read `skills/issue-management/SKILL.md`.

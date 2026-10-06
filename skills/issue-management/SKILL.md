@@ -229,6 +229,7 @@ Der Datumsvergleich läuft über das lokale Datum, nicht über UTC, weil das Mod
 
 ## Gemeinsame Regeln
 
+- **Nie ungefragt in den Tracker schreiben**: Kommentare, Statuswechsel und Zwischenstände (`bin/i post`, Jira-/GitHub-MCP, `jira-cli`, `gh`) nur nach ausdrücklicher Freigabe im aktuellen Turn, jedes Mal neu. Weder `/i:update`, `/i:note` noch ein Sessionende lösen einen Post aus, und eine frühere Freigabe gilt nicht für den nächsten Post. Im Zweifel nur lokal ins Dokument schreiben.
 - **Sprache**: siehe „Report-Templates" für Tracker-Kommunikation; für das Dokument selbst siehe `i:new` Schritt 6.
 - **Pfad**: `.issues/<filename>` — siehe Ref-Auflösung für das Namensschema
 - **Nicht committen**: `.issues/` ist lokal, doppelt abgesichert — global über `~/.gitignore` (diese Maschine) und im Projekt selbst über dessen eigene `.gitignore` (jeder, der das Repo klont). `bin/i migrate-once --apply` schreibt beide.
