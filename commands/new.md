@@ -75,13 +75,18 @@ On confirmation:
 
 Set `status: in-progress` and `branch: <name>` (`${CLAUDE_PLUGIN_ROOT}/bin/i set "<ref>" branch=<name>` — status can be set the same way).
 
-### 10. Record the session
+### 10. Move a Jira ticket to „In Arbeit"
+
+Only for `tracker: jira`. Run `${CLAUDE_PLUGIN_ROOT}/bin/i move "<ref>" "In Arbeit"`; if the workflow has no such transition, retry once with `"In Progress"`. If both fail, tell the user the transition name is missing and continue — never block the workflow on it. Skip if the ticket's `state` from step 3 is already an in-progress state.
+
+### 11. Record the session
 
 `${CLAUDE_PLUGIN_ROOT}/bin/i session-add "<ref>" <sessionId> <branch>` — the session ID is available in this session's own context.
 
 ## Rules
 
 - **No implementation before confirmation** (step 8).
+- **Jira status change is pre-approved** — moving the ticket to in progress (step 10) needs no extra confirmation, because the scope confirmation in step 8 precedes it. No other tracker write is.
 - **One message for questions** — never drip-feed across turns (step 7).
 - **No invention** — insufficient information means asking, not guessing scope.
 - **Bilder sind Anforderungen** — every downloaded image gets viewed and analyzed, never delegated to the user while download is possible.

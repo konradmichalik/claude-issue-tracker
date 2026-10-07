@@ -147,6 +147,16 @@ function cmdPost() {
   console.log(`Gepostet an ${ref.ref}.`)
 }
 
+function cmdMove() {
+  const [input, state] = args
+  if (!input || !state) die('Nutzung: i move <ref> <state>')
+  const ref = parseRef(input)
+  if (ref.tracker !== 'jira') die(`Statuswechsel für Tracker "${ref.tracker}" ist nicht implementiert.`)
+  preflight(ref.tracker)
+  moveJiraStatus(ref.key, state)
+  console.log(`${ref.ref} → ${state}`)
+}
+
 function cmdSessions() {
   const input = args[0]
   const dir = resolveIssuesDir()
@@ -328,6 +338,7 @@ const commands = {
   sync: cmdSync,
   attach: cmdAttach,
   post: cmdPost,
+  move: cmdMove,
   sessions: cmdSessions,
   'session-add': cmdSessionAdd,
   recall: cmdRecall,
