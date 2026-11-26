@@ -67,7 +67,7 @@ No linter or formatter is configured.
 - Issue documents are append-only. Only checkbox state and frontmatter change in place
 - Check off a requirement only after verification and never reformulate or delete its text, `/i:report` and `bin/i status` trust the checkbox as fact
 - Credentials come from `~/.netrc` via `curl --netrc`. Never read the keychain or inline a token
-- `.issues/` is never committed, it is gitignored
+- `.issues/` is never committed. `ensureIssuesDir()` in `lib/doc.js` writes `.issues/.gitignore` (`*`) whenever the directory is created, so no project-level or global ignore rule is needed. `/i:new` creates the directory through `bin/i init`, never by hand
 - When editing a command, keep it consistent with the others: shared tone and `Arguments`, `Workflow`, `Rules` structure, with format details deferred to the skill
 
 ## Git workflow

@@ -116,9 +116,8 @@ For every `.claude/issues/` it finds:
   project's own `origin` remote, since the two aren't always the same
   repository
 - renames the legacy `issue:` field to `key:`
-- appends `.issues/` to `~/.gitignore` **and** to that project's own
-  `.gitignore` — the global entry only protects this machine, the
-  project-local one protects anyone else who ever clones it
+- appends `.issues/` to that project's own `.gitignore` (the directory also
+  carries its own `.gitignore`, see `bin/i init`)
 - writes a `.bak` next to every file it changes
 
 Pre-frontmatter documents (an H1 heading plus `**Status:** …` lines) move

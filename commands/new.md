@@ -50,7 +50,7 @@ Each agent returns strict JSON (see `agents/*.md`), including an `unresolved`/`n
 
 ### 6. Write the document
 
-Create `.issues/<filename>` with the frontmatter and sections defined in `skills/issue-management/SKILL.md`. **Only write a section if it has content — do not create empty headings.** `## Zusammenfassung` is mandatory: 2-4 sentences on what this is, why it matters, and the current state.
+Run `${CLAUDE_PLUGIN_ROOT}/bin/i init` first if `.issues/` does not exist (it also writes `.issues/.gitignore`; never `mkdir` it by hand). Then create `.issues/<filename>` with the frontmatter and sections defined in `${CLAUDE_PLUGIN_ROOT}/skills/issue-management/SKILL.md`. **Only write a section if it has content — do not create empty headings.** `## Zusammenfassung` is mandatory: 2-4 sentences on what this is, why it matters, and the current state.
 
 Set `tracker`, `ref`, `url` from step 1.
 
