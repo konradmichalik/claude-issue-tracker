@@ -112,7 +112,7 @@ function cmdSync() {
   const prev = readCache(dir, ref.key)
   const next = fetchByRef(ref)
   const diff = diffPayloads(prev, next)
-  writeCache(dir, ref.key, next)
+  writeCache(dir, ref.key, next, { keepPrevious: true })
   console.log(renderDiff(ref.key, prev?.fetched_at?.slice(0, 10), diff))
 }
 
