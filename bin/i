@@ -27,8 +27,9 @@ function die(msg) {
   process.exit(1)
 }
 
-// GH-<n> and RM-<n> name a document, not a repo or host. The document's `ref`
-// field holds the full reference, so read it back instead of guessing.
+// GH-<n> and RM-<n> name a document, not a repo or host. Tracker operations need
+// the full reference, so read it from the document's `ref` field instead of
+// guessing. Local operations (sessions, set) only need the filename and use parseRef.
 function resolveRefInput(input) {
   const ref = parseRef(input)
   if (!ref.needsContext) return ref
@@ -197,7 +198,7 @@ function afterComment(ref, step, label) {
 
 function cmdMove() {
   const [input, state] = args.filter(a => a !== '--start')
-  if (!input || !state) die('Nutzung: i move <ref> <state>')
+  if (!input || !state) die('Nutzung: i move <ref> <state> [--start]')
   const ref = resolveRefInput(input)
   if (ref.tracker !== 'jira') die(`Statuswechsel für Tracker "${ref.tracker}" ist nicht implementiert.`)
   preflight(ref.tracker)
@@ -216,7 +217,7 @@ function cmdGuard() {
 function cmdSessions() {
   const input = args[0]
   const dir = resolveIssuesDir()
-  const target = input ? resolveRefInput(input).filename : resolveActiveIssue(dir)?.file
+  const target = input ? parseRef(input).filename : resolveActiveIssue(dir)?.file
   if (!target) die('Kein Issue gefunden.')
   const content = readIssue(dir, target)
   if (!content) die(`Kein Dokument für ${target}.`)
@@ -228,7 +229,7 @@ function cmdSessionAdd() {
   const [input, sessionId, branch] = args
   if (!input || !sessionId) die('Nutzung: i session-add <ref> <sessionId> [branch]')
   const dir = resolveIssuesDir()
-  const filename = resolveRefInput(input).filename
+  const filename = parseRef(input).filename
   const content = readIssue(dir, filename)
   if (!content) die(`Kein Dokument für ${input}.`)
   const fm = parseFrontmatter(content)
@@ -350,7 +351,7 @@ function cmdSet() {
   const [input, kv] = args
   if (!input || !kv || !kv.includes('=')) die('Nutzung: i set <ref> <feld>=<wert>')
   const dir = resolveIssuesDir()
-  const filename = resolveRefInput(input).filename
+  const filename = parseRef(input).filename
   const content = readIssue(dir, filename)
   if (!content) die(`Kein Dokument für ${input}.`)
   const eq = kv.indexOf('=')

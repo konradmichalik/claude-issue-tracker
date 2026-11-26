@@ -26,7 +26,7 @@ Post a short, consistently formatted status update to the tracker.
    ```
    ${CLAUDE_PLUGIN_ROOT}/bin/i post "<ref>" -f <tmpfile-with-final-text>
    ```
-   Add `--close` only for `abschluss`/`closing`, and only if all requirements are checked.
+   For `abschluss`/`closing`, and only if all requirements are checked: on GitHub add `--close`; on Jira add `--state "<done state>"` with the workflow's name for it (`--close` is rejected for Jira). Other trackers cannot be closed from here.
 7. Set `reported: <today>` in the frontmatter (`${CLAUDE_PLUGIN_ROOT}/bin/i set "<ref>" reported=<date>`).
 
 ## Rules

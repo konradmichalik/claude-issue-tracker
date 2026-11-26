@@ -43,14 +43,22 @@ test('report-template accepts the english kind names and rejects unknown ones', 
   assert.equal(run(dir, 'report-template', '--kind', 'nope', '--json', join(dir, 'r.json')).status, 1)
 })
 
-test('GH-<n> resolves through the document ref, and fails clearly without one', () => {
+test('GH-<n> resolves through the document ref for tracker operations, and fails clearly without one', () => {
   const dir = project()
   writeFileSync(join(dir, '.issues', 'GH-22.md'), '---\nkey: GH-22\nref: owner/repo#22\n---\n')
-  assert.equal(run(dir, 'sessions', 'GH-22').status, 0)
-  const missing = run(dir, 'sessions', 'GH-99')
+  mkdirSync(join(dir, '.issues', '.cache'))
+  writeFileSync(join(dir, '.issues', '.cache', 'GH-22.json'), '{"attachments":[]}')
+  assert.equal(run(dir, 'attach', 'GH-22', '--dest', join(dir, 'att')).status, 0)
+  const missing = run(dir, 'attach', 'GH-99', '--dest', join(dir, 'att'))
   assert.equal(missing.status, 1)
   assert.match(missing.stderr, /Repo oder Host unbekannt/)
-  assert.ok(existsSync(join(dir, '.issues')))
+})
+
+test('local operations work on a legacy GH-<n> document that has no ref', () => {
+  const dir = project()
+  writeFileSync(join(dir, '.issues', 'GH-22.md'), '---\nkey: GH-22\n---\n## Zusammenfassung\nx\n')
+  assert.equal(run(dir, 'sessions', 'GH-22').status, 0)
+  assert.equal(run(dir, 'set', 'GH-22', 'status=done').status, 0)
 })
 
 test('guard asks for every post and move, and lets only move --start through', () => {
@@ -62,3 +70,12 @@ test('guard asks for every post and move, and lets only move --start through', (
   assert.equal(decide('/p/bin/i fetch PROJ-1'), '')
   assert.equal(decide('/p/bin/i move PROJ-1 x --start; /p/bin/i post PROJ-1 -f f') === '', false)
 })
+
+test('guard does not honor --start inside a comment, a quoted argument or after a line continuation', () => {
+  const decide = command => spawnSync('node', [bin, 'guard'], { input: JSON.stringify({ tool_input: { command } }), encoding: 'utf-8' }).stdout
+  assert.match(decide('/p/bin/i move PROJ-1 Done # --start'), /"ask"/)
+  assert.match(decide('/p/bin/i move PROJ-1 "Done --start"'), /"ask"/)
+  assert.match(decide('/p/bin/i \\\npost PROJ-1 -f f'), /"ask"/)
+  assert.equal(decide('/p/bin/i move PROJ-1 "In Arbeit" --start'), '')
+})
+

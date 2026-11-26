@@ -32,3 +32,10 @@ test('a heading inside a fenced code block does not end the section', () => {
 test('an inline empty list parses as an empty list', () => {
   assert.deepEqual(parseFrontmatter('---\nsessions: []\n---\n').sessions, [])
 })
+
+test('a longer fence is only closed by a fence of at least the same length', () => {
+  const doc = '## Zusammenfassung\n````md\n```\n## Kein Abschnitt\n````\n\n## Anforderungen\n- [ ] a'
+  assert.equal(getSection(doc, 'Anforderungen'), '- [ ] a')
+  assert.ok(getSection(doc, 'Zusammenfassung').includes('## Kein Abschnitt'))
+})
+
