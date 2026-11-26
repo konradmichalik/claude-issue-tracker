@@ -36,4 +36,4 @@ Append only, never overwrite. Update `updated` in the frontmatter.
 
 - **No separate sync timestamp to maintain** — the sync cache under `.issues/.cache/` is the only delta marker.
 - **Append-only** — sync findings extend sections, never replace them.
-- Format and conventions: read `skills/issue-management/SKILL.md`.
+- Format and conventions: read `${CLAUDE_PLUGIN_ROOT}/skills/issue-management/SKILL.md`.

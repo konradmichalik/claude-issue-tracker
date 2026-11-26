@@ -91,4 +91,4 @@ Only for `tracker: jira`. Run `${CLAUDE_PLUGIN_ROOT}/bin/i move "<ref>" "In Arbe
 - **No invention** — insufficient information means asking, not guessing scope.
 - **Bilder sind Anforderungen** — every downloaded image gets viewed and analyzed, never delegated to the user while download is possible.
 - **Keine leeren Abschnitte** — a section with nothing to say is not written at all.
-- Format, lifecycle, and section conventions: read `skills/issue-management/SKILL.md` (`Read` tool).
+- Format, lifecycle, and section conventions: read `${CLAUDE_PLUGIN_ROOT}/skills/issue-management/SKILL.md` (`Read` tool).

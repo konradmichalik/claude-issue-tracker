@@ -8,8 +8,8 @@
 ```
 
 All four resolve `ref` the same way — see [Trackers and ref resolution](trackers.md).
-Omitting it resolves the active issue: current branch, then a document whose
-`branch:` field matches, then the newest `in-progress` document.
+Omitting it resolves the active issue: the document whose `branch:` field
+matches the current branch, then the newest `in-progress` document.
 
 ## `/i:new`
 

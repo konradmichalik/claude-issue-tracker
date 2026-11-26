@@ -83,8 +83,9 @@ weeks of real usage. An effort estimate can still live under an optional
 ## Sessions and the Stop hook
 
 `sessions:` links an issue to every Claude Code session that worked on it —
-written by `/i:new` on the first session, appended by the `SessionStart` hook
-on every later one whose branch matches. `bin/i sessions <ref>` lists them;
+written by `/i:new` on the first session and by `bin/i session-add` for later
+ones (the full session ID, so `claude --resume <id>` works). The `SessionStart`
+hook only prints the status and does not append. `bin/i sessions <ref>` lists them;
 `claude --resume <id>` picks one back up.
 
 The `Stop` hook checks, once per session, whether the active issue has

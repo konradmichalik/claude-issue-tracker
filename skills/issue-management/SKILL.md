@@ -34,7 +34,7 @@ Jeder Command, der ein Issue referenziert, akzeptiert dieselbe Eingabeform, aufg
 
 | Eingabe | Tracker | Dateiname |
 |---|---|---|
-| (leer) | — | aktives Issue: Branch → `branch:`-Feld → jüngstes `in-progress` |
+| (leer) | — | aktives Issue: Dokument, dessen `branch:`-Feld dem aktuellen Branch entspricht, sonst jüngstes `in-progress` |
 | `VHWWEB-312` | jira | `VHWWEB-312.md` |
 | `https://…atlassian.net/browse/X-1` | jira | `X-1.md` |
 | `https://github.com/o/r/issues/9` | github | `GH-9.md` |
@@ -63,7 +63,7 @@ updated: <YYYY-MM-DD>
 branch: <aktueller Branch>
 reported: <YYYY-MM-DD, Datum des letzten i:report>
 sessions:
-  - <YYYY-MM-DD> <sessionId-kurz> <branch>
+  - <YYYY-MM-DD> <sessionId> <branch>
 ---
 ```
 
@@ -79,7 +79,7 @@ sessions:
 | `updated` | ja | alle Commands | Letzte inhaltliche Änderung |
 | `branch` | nein | i:new | Aktueller Arbeits-Branch — einzige Verknüpfung bei GitHub, wo die Issue-Nummer nicht im Branchnamen steht |
 | `reported` | nein | i:report | Datum der letzten Zwischenstandsmeldung — verhindert doppelte Reports |
-| `sessions` | nein | i:new, SessionStart-Hook | Liste `<datum> <sessionId> <branch>`, eine Zeile pro Claude-Code-Session an diesem Issue |
+| `sessions` | nein | i:new, `bin/i session-add` | Liste `<datum> <sessionId> <branch>`, eine Zeile pro Claude-Code-Session an diesem Issue |
 
 **Entfallen gegenüber der Vorversion:** `complexity`, `scope` (keine Konsumenten mehr), `jira_synced` (ersetzt durch den Sync-Cache in `.issues/.cache/`, der über Kommentar-IDs vergleicht statt über einen Zeitstempel — funktioniert dadurch tracker-übergreifend und hat kein Same-Day-Problem).
 
@@ -204,7 +204,7 @@ Beim Lesen werden folgende Namen als äquivalent zu den kanonischen behandelt (c
 
 ## Sessions
 
-`sessions:` im Frontmatter verknüpft ein Issue mit jeder Claude-Code-Session, die daran gearbeitet hat — geschrieben von `i:new` (erste Session) und vom SessionStart-Hook (jede Folgesession auf demselben Branch). `bin/i sessions <ref>` listet sie, `claude --resume <id>` nimmt eine wieder auf.
+`sessions:` im Frontmatter verknüpft ein Issue mit jeder Claude-Code-Session, die daran gearbeitet hat — geschrieben von `i:new` (erste Session) und `bin/i session-add` (Folgesessions, volle Session-ID). Der SessionStart-Hook gibt nur den Status aus und schreibt nichts. `bin/i sessions <ref>` listet sie, `claude --resume <id>` nimmt eine wieder auf.
 
 Für Kontext, der nie ins Dokument geschrieben wurde: `bin/i recall <key>` durchsucht alle lokalen Transcripts (`~/.claude/projects/**/*.jsonl`) nach dem Key und gibt Fundstellen mit Datum, Session und Kontextzeile aus.
 

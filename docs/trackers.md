@@ -5,7 +5,7 @@ resolves to without touching the network.
 
 | Input | Tracker | Document |
 | --- | --- | --- |
-| (empty) | — | active issue: branch → `branch:` field → newest `in-progress` |
+| (empty) | — | active issue: the document whose `branch:` field is the current branch, else the newest `in-progress` |
 | `VHWWEB-312` | Jira | `VHWWEB-312.md` |
 | `https://…atlassian.net/browse/X-1` | Jira | `X-1.md` |
 | `https://github.com/o/r/issues/9` | GitHub | `GH-9.md` |

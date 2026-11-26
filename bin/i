@@ -223,8 +223,7 @@ function cmdSessionAdd() {
   const content = readIssue(dir, filename)
   if (!content) die(`Kein Dokument für ${input}.`)
   const fm = parseFrontmatter(content)
-  const today = new Date().toISOString().slice(0, 10)
-  const entry = `${today} ${sessionId.slice(0, 8)} ${branch || fm.branch || ''}`.trim()
+  const entry = `${localDate()} ${sessionId} ${branch || fm.branch || ''}`.trim()
   const sessions = [...(fm.sessions || []), entry]
   const updated = setFrontmatter(content, { sessions })
   writeFileSync(join(dir, filename), updated, 'utf-8')
