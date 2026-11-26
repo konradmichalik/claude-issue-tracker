@@ -8,17 +8,17 @@ worktree, never committed. Only sections with actual content are written —
 
 ```yaml
 ---
-key: VHWWEB-312
+key: PROJ-312
 title: Sortierung Zertifikatslehrgänge
 status: analysis
 tracker: jira
-ref: VHWWEB-312
-url: https://move-elevator.atlassian.net/browse/VHWWEB-312
+ref: PROJ-312
+url: https://your-site.atlassian.net/browse/PROJ-312
 created: 2026-09-06
 updated: 2026-09-06
-branch: VHWWEB-312-sortierung-lehrgaenge
+branch: PROJ-312-sortierung
 sessions:
-  - 2026-09-06 491b05d1 VHWWEB-312-sortierung-lehrgaenge
+  - 2026-09-06 491b05d1 PROJ-312-sortierung
 ---
 ```
 

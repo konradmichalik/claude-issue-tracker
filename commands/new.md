@@ -8,7 +8,7 @@ Create a new issue document — fetch from any tracker (or none), investigate th
 
 ## Arguments
 
-- `<ref>` (required) — a tracker key (`VHWWEB-312`), a tracker URL (Jira, GitHub, Redmine), a bare GitHub issue number, or free text describing a topic that has no tracker.
+- `<ref>` (required) — a tracker key (`PROJ-312`), a tracker URL (Jira, GitHub, Redmine), a bare GitHub issue number, or free text describing a topic that has no tracker.
 - `[text]` (optional) — supplements the fetched payload. For a `ref` with no tracker, this is the primary content.
 
 ## Workflow

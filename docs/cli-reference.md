@@ -13,7 +13,7 @@ bin/i list
 
 ```text
 KEY       STATUS       TRACKER  ANFORDERUNGEN  AKTUALISIERT
-VHWWEB-312  in-progress  jira     2/5          2026-09-06
+PROJ-312  in-progress  jira     2/5          2026-09-06
 ```
 
 Every local issue, sorted by `updated`, newest first. No model turn, no
@@ -86,7 +86,7 @@ document.
 ## `bin/i sessions`
 
 ```bash
-bin/i sessions VHWWEB-312
+bin/i sessions PROJ-312
 ```
 
 Lists the `sessions:` entries recorded for that issue — pair with

@@ -14,7 +14,7 @@ matches the current branch, then the newest `in-progress` document.
 ## `/i:new`
 
 ```text
-/i:new VHWWEB-312
+/i:new PROJ-312
 /i:new https://github.com/konradmichalik/beacon/issues/101
 /i:new "Wie können wir Stage-Inhalte auf Prod übertragen?"
 ```
@@ -34,7 +34,7 @@ Refuses to run if a document for that reference already exists — use
 
 ```text
 /i:update
-/i:update VHWWEB-312 "Sortierung greift auf Seite 3 nicht"
+/i:update PROJ-312 "Sortierung greift auf Seite 3 nicht"
 ```
 
 Without `text`: syncs against the tracker and reports only the delta since the
@@ -52,7 +52,7 @@ sync against.
 
 ```text
 /i:report
-/i:report VHWWEB-312 "kurz vor dem Review"
+/i:report PROJ-312 "kurz vor dem Review"
 ```
 
 Builds a status update from the requirement checkboxes — checked become

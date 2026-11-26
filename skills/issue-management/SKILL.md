@@ -35,7 +35,7 @@ Jeder Command, der ein Issue referenziert, akzeptiert dieselbe Eingabeform, aufg
 | Eingabe | Tracker | Dateiname |
 |---|---|---|
 | (leer) | — | aktives Issue: Dokument, dessen `branch:`-Feld dem aktuellen Branch entspricht, sonst jüngstes `in-progress` |
-| `VHWWEB-312` | jira | `VHWWEB-312.md` |
+| `PROJ-312` | jira | `PROJ-312.md` |
 | `https://…atlassian.net/browse/X-1` | jira | `X-1.md` |
 | `https://github.com/o/r/issues/9` | github | `GH-9.md` |
 | `22` | github (aus `origin`-Remote) | `GH-22.md` |
