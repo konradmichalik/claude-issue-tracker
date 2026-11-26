@@ -50,9 +50,10 @@ claude plugin install i@issue-tracker --scope user -y
 
 ## Testing
 
-There is no test suite, linter or build step and no CI workflow. Verify a change as follows:
+`npm test` runs `node --test` over `test/`: the pure functions plus CLI behavior in temp directories, no dependencies and no network. There is no linter, build step or CI workflow. Verify a change as follows:
 
 ```bash
+npm test                              # unit and CLI tests
 node --check lib/<file>.js            # syntax
 claude plugin validate .              # manifest and command frontmatter
 ```
