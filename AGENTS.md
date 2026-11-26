@@ -4,7 +4,7 @@
 
 A local, tracker-agnostic issue tracker for Claude Code. It works with Jira, GitHub, Redmine or no tracker at all, keeps issues as Markdown documents, investigates the codebase through subagents, tracks findings and posts status updates back to the tracker.
 
-This repository is the tooling itself. It ships as a Claude Code plugin (`.claude-plugin/plugin.json` and `marketplace.json`, plugin name `i`): four slash commands, four subagents, one skill, two hooks (`SessionStart`, `Stop`) and `bin/i`, a small Node CLI (plain ESM, no dependencies) that is the only component talking to a tracker.
+This repository is the tooling itself. It ships as a Claude Code plugin (`.claude-plugin/plugin.json` and `marketplace.json`, plugin name `i`): four slash commands, four subagents, one skill, three hooks (`SessionStart`, `Stop`, `PreToolUse`) and `bin/i`, a small Node CLI (plain ESM, no dependencies) that is the only component talking to a tracker.
 
 ## Structure
 
@@ -13,7 +13,7 @@ This repository is the tooling itself. It ships as a Claude Code plugin (`.claud
 - `commands/{new,update,report,note}.md`: slash commands, prompt specs and not code
 - `agents/{locate,history,patterns,reproduce}.md`: subagent contracts used inside `/i:new`
 - `skills/issue-management/SKILL.md`: single source of truth for document format, lifecycle and section conventions
-- `hooks/hooks.json`, `session-start.sh`, `stop.sh`: SessionStart prints active-issue status, Stop nudges once per session for an unrecorded, dirty active issue
+- `hooks/hooks.json`, `session-start.sh`, `stop.sh`, `guard.sh`: SessionStart prints active-issue status, Stop nudges once per session for an unrecorded, dirty active issue, PreToolUse (Bash) turns every `bin/i post` and `bin/i move` (except `move --start`, the `/i:new` status move) into a permission prompt
 - `bin/i`: CLI for ref resolution, fetch, sync, post, attach, sessions, recall, list, status, check-note
 - `lib/`: the only code that talks to trackers or parses and writes issue Markdown (`ref.js`, `doc.js`, `normalize.js`, `cache.js`, `diff.js`, `render.js`, `recall.js`, `migrate.js`, `adapters/{jira,github,redmine}.js`)
 - `docs/`: `cli-reference.md`, `commands.md`, `document-format.md`, `trackers.md`
@@ -27,7 +27,8 @@ This repository is the tooling itself. It ships as a Claude Code plugin (`.claud
 - The issue document format has two implementations that must stay in sync: the prose in `SKILL.md` and the regex parser in `lib/doc.js`. A format change touches both. Legacy documents are handled on read through `SECTION_ALIASES`, new writes are always canonical
 - Worktree-safe `.issues/` resolution lives only in `resolveIssuesDir()` in `lib/doc.js`
 - The sync cache `.issues/.cache/<key>.json` is the comparison point, `lib/diff.js` compares comments by ID
-- Both hooks stay silent (exit 0, no output) when `.issues/` does not exist or no issue is active, since they run in every project. The `Stop` hook blocks at most once per session, only for a branch-resolved `in-progress` issue with a dirty tree and no `Erkenntnisse` entry today, and fails open. `check-note` treats stdin as untrusted, reads it only when it is not a TTY and validates `session_id` against `^[A-Za-z0-9._-]{1,128}$`
+- The `PreToolUse` guard (`lib/guard.js`) is the enforcement behind "never post without approval", because prose alone is not enough while fetched ticket text sits in the context. It answers `permissionDecision: ask`, which applies regardless of allowlists. Not yet verified in a real session: confirm that `ask` still prompts when `bin/i post` is on the user's allowlist
+- The `SessionStart` and `Stop` hooks stay silent (exit 0, no output) when `.issues/` does not exist or no issue is active, since they run in every project. The `Stop` hook blocks at most once per session, only for a branch-resolved `in-progress` issue with a dirty tree and no `Erkenntnisse` entry today, and fails open. `check-note` treats stdin as untrusted, reads it only when it is not a TTY and validates `session_id` against `^[A-Za-z0-9._-]{1,128}$`
 - `plugin.json` stays minimal. Do not add `commands`, `agents`, `skills` or `hooks` fields, they are auto-discovered and declaring them breaks validation or plugin loading
 
 ## Development commands
