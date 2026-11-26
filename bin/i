@@ -25,6 +25,20 @@ function die(msg) {
   process.exit(1)
 }
 
+// GH-<n> and RM-<n> name a document, not a repo or host. The document's `ref`
+// field holds the full reference, so read it back instead of guessing.
+function resolveRefInput(input) {
+  const ref = parseRef(input)
+  if (!ref.needsContext) return ref
+  const content = readIssue(resolveIssuesDir(), ref.filename)
+  const stored = content ? parseFrontmatter(content).ref : ''
+  const full = stored ? parseRef(stored) : null
+  if (!full || full.needsContext || full.tracker !== ref.tracker) {
+    die(`${input}: Repo oder Host unbekannt und kein Dokument mit passendem "ref:" gefunden. Vollständige Referenz angeben (owner/repo#n, host#n oder URL).`)
+  }
+  return full
+}
+
 function fetchByRef(ref) {
   if (ref.tracker === 'jira') return normalizeJira(fetchJira(ref.key))
   if (ref.tracker === 'github') return normalizeGithub(fetchGithub(ref.owner, ref.repo, ref.number), ref.ref)
@@ -75,7 +89,7 @@ function cmdActive() {
 function cmdFetch() {
   const input = args[0]
   if (!input) die('Nutzung: i fetch <ref>')
-  const ref = parseRef(input)
+  const ref = resolveRefInput(input)
   if (ref.tracker === 'none') die('Kein Tracker erkannt — nichts zu holen.')
   preflight(ref.tracker)
   const payload = fetchByRef(ref)
@@ -87,7 +101,7 @@ function cmdFetch() {
 function cmdSync() {
   const input = args[0]
   if (!input) die('Nutzung: i sync <ref>')
-  const ref = parseRef(input)
+  const ref = resolveRefInput(input)
   if (ref.tracker === 'none') die('tracker: none — nichts zu synchronisieren.')
   preflight(ref.tracker)
   const dir = resolveIssuesDir()
@@ -103,7 +117,7 @@ function cmdAttach() {
   const destIdx = args.indexOf('--dest')
   const dest = destIdx !== -1 ? args[destIdx + 1] : null
   if (!input || !dest) die('Nutzung: i attach <ref> --dest <dir>')
-  const ref = parseRef(input)
+  const ref = resolveRefInput(input)
   if (ref.tracker === 'none') die('tracker: none — keine Anhänge zu laden.')
   const dir = resolveIssuesDir()
   const cached = readCache(dir, ref.key) || fetchByRef(ref)
@@ -133,7 +147,7 @@ function cmdPost() {
   const stateIdx = args.indexOf('--state')
   const state = stateIdx !== -1 ? args[stateIdx + 1] : null
   if (!input || !bodyFile) die('Nutzung: i post <ref> -f <datei> [--close] [--state <state>]')
-  const ref = parseRef(input)
+  const ref = resolveRefInput(input)
   preflight(ref.tracker)
   if (ref.tracker === 'jira') {
     postJiraComment(ref.key, bodyFile)
@@ -150,7 +164,7 @@ function cmdPost() {
 function cmdMove() {
   const [input, state] = args
   if (!input || !state) die('Nutzung: i move <ref> <state>')
-  const ref = parseRef(input)
+  const ref = resolveRefInput(input)
   if (ref.tracker !== 'jira') die(`Statuswechsel für Tracker "${ref.tracker}" ist nicht implementiert.`)
   preflight(ref.tracker)
   moveJiraStatus(ref.key, state)
@@ -160,7 +174,7 @@ function cmdMove() {
 function cmdSessions() {
   const input = args[0]
   const dir = resolveIssuesDir()
-  const target = input ? parseRef(input).filename : resolveActiveIssue(dir)?.file
+  const target = input ? resolveRefInput(input).filename : resolveActiveIssue(dir)?.file
   if (!target) die('Kein Issue gefunden.')
   const content = readIssue(dir, target)
   if (!content) die(`Kein Dokument für ${target}.`)
@@ -172,7 +186,7 @@ function cmdSessionAdd() {
   const [input, sessionId, branch] = args
   if (!input || !sessionId) die('Nutzung: i session-add <ref> <sessionId> [branch]')
   const dir = resolveIssuesDir()
-  const filename = parseRef(input).filename
+  const filename = resolveRefInput(input).filename
   const content = readIssue(dir, filename)
   if (!content) die(`Kein Dokument für ${input}.`)
   const fm = parseFrontmatter(content)
@@ -281,7 +295,7 @@ function cmdSet() {
   const [input, kv] = args
   if (!input || !kv || !kv.includes('=')) die('Nutzung: i set <ref> <feld>=<wert>')
   const dir = resolveIssuesDir()
-  const filename = parseRef(input).filename
+  const filename = resolveRefInput(input).filename
   const content = readIssue(dir, filename)
   if (!content) die(`Kein Dokument für ${input}.`)
   const eq = kv.indexOf('=')
