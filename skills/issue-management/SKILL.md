@@ -166,15 +166,19 @@ Session-Checkpoints im „Erkenntnisse"-Abschnitt:
 **Zwischenstand <Datum>**          **Status update <date>**       (deutsch, jira/redmine)   (englisch, github)
 
 Erledigt                            Done
+
 - ...                                - ...
 
 Offen                                Open
+
 - ...                                - ...
 
 Nächster Schritt: ...                Next: ...
 ```
 
 Sprache folgt dem Tracker: `jira`/`redmine` → deutsch, `github` → englisch, `none` → Sprache des Repos, im Zweifel nachfragen. Gerendert über `bin/i report-template --lang <de|en> --kind <fortschritt|abschluss> --json <datei>`.
+
+Die Leerzeile zwischen `Erledigt`/`Offen` und der Liste ist Pflicht: Ohne sie rendert Jira die Punkte als Fließtext mit literalem `\-`.
 
 **Erledigt/Offen kommen aus den Anforderungen, nicht aus freier Formulierung.** `Erledigt` = abgehakte Checkboxen (`- [x]`), `Offen` = nicht abgehakte, inklusive Nachträge und Testfeedback. Neue `Entscheidungen` oder `Erkenntnisse` seit dem letzten Report ergänzen `Erledigt` als zusätzliche Zeilen, ersetzen die Checkbox-Liste aber nicht. Das macht den Report zu einer Momentaufnahme des tatsächlichen Standes statt einer Nacherzählung — und gibt den Checkboxen den Konsumenten, den sie sonst nicht hätten.
 
