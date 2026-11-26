@@ -116,6 +116,11 @@ function cmdSync() {
   console.log(renderDiff(ref.key, prev?.fetched_at?.slice(0, 10), diff))
 }
 
+function safeAttachmentName(filename) {
+  const name = basename(String(filename || '').replace(/\\/g, '/'))
+  return name && !/^\.+$/.test(name) ? name : null
+}
+
 function cmdAttach() {
   const input = args[0]
   const destIdx = args.indexOf('--dest')
@@ -127,20 +132,31 @@ function cmdAttach() {
   const cached = readCache(dir, ref.key) || fetchByRef(ref)
   mkdirSync(dest, { recursive: true })
   const maxBytes = 10 * 1024 * 1024
-  const downloadable = (cached.attachments || []).filter(a =>
+  const attachments = cached.attachments || []
+  const wanted = attachments.filter(a =>
     ((a.mime || '').startsWith('image/') || a.mime === 'application/pdf') && (a.size || 0) <= maxBytes
   )
   const results = []
-  for (const a of downloadable) {
-    const target = join(dest, a.filename)
+  const taken = new Set()
+  for (const a of wanted) {
+    // The filename comes from the tracker and is untrusted: keep only its last
+    // path segment, and never overwrite a file written earlier in this run.
+    const name = safeAttachmentName(a.filename)
+    if (!name) { results.push({ filename: a.filename, ok: false, error: 'ungültiger Dateiname' }); continue }
+    let target = join(dest, name)
+    if (taken.has(target)) target = join(dest, `${a.id ?? taken.size}-${name}`)
+    taken.add(target)
     try {
-      execFileSync('curl', ['-fsSL', '--netrc', '-o', target, a.url])
-      results.push({ filename: a.filename, ok: true })
+      execFileSync('curl', [
+        '-fsSL', '--netrc', '--proto', '=https', '--proto-redir', '=https',
+        '--max-filesize', String(maxBytes), '--max-time', '60', '-o', target, '--', a.url
+      ])
+      results.push({ filename: basename(target), ok: true })
     } catch (e) {
-      results.push({ filename: a.filename, ok: false, error: e.message })
+      results.push({ filename: basename(target), ok: false, error: e.message })
     }
   }
-  console.log(JSON.stringify({ downloaded: results, skipped: (cached.attachments || []).length - downloadable.length }, null, 2))
+  console.log(JSON.stringify({ downloaded: results, skipped: attachments.length - wanted.length }, null, 2))
 }
 
 function cmdPost() {
