@@ -18,6 +18,7 @@ import { renderReport } from '../lib/render.js'
 import { recall } from '../lib/recall.js'
 import { findClaudeIssuesDirs, migrateDir } from '../lib/migrate.js'
 import { localDate } from '../lib/date.js'
+import { guardDecision } from '../lib/guard.js'
 
 const [, , cmd, ...args] = process.argv
 
@@ -195,13 +196,21 @@ function afterComment(ref, step, label) {
 }
 
 function cmdMove() {
-  const [input, state] = args
+  const [input, state] = args.filter(a => a !== '--start')
   if (!input || !state) die('Nutzung: i move <ref> <state>')
   const ref = resolveRefInput(input)
   if (ref.tracker !== 'jira') die(`Statuswechsel für Tracker "${ref.tracker}" ist nicht implementiert.`)
   preflight(ref.tracker)
   moveJiraStatus(ref.key, state)
   console.log(`${ref.ref} → ${state}`)
+}
+
+function cmdGuard() {
+  if (process.stdin.isTTY) return
+  let payload
+  try { payload = JSON.parse(readFileSync(0, 'utf-8')) } catch { return }
+  const decision = guardDecision(payload)
+  if (decision) console.log(JSON.stringify(decision))
 }
 
 function cmdSessions() {
@@ -406,6 +415,7 @@ const commands = {
   list: cmdList,
   doctor: cmdDoctor,
   'check-note': cmdCheckNote,
+  guard: cmdGuard,
   set: cmdSet,
   'report-template': cmdReportTemplate,
   'migrate-once': cmdMigrateOnce

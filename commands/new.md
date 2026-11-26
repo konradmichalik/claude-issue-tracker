@@ -77,7 +77,7 @@ Set `status: in-progress` and `branch: <name>` (`${CLAUDE_PLUGIN_ROOT}/bin/i set
 
 ### 10. Move a Jira ticket to „In Arbeit"
 
-Only for `tracker: jira`. Run `${CLAUDE_PLUGIN_ROOT}/bin/i move "<ref>" "In Arbeit"`; if the workflow has no such transition, retry once with `"In Progress"`. If both fail, tell the user the transition name is missing and continue — never block the workflow on it. Skip if the ticket's `state` from step 3 is already an in-progress state.
+Only for `tracker: jira`. Run `${CLAUDE_PLUGIN_ROOT}/bin/i move "<ref>" "In Arbeit" --start`; if the workflow has no such transition, retry once with `"In Progress"`. `--start` is the only form the confirmation hook lets through without a prompt, so use it here and nowhere else. State the result (`<ref> → <state>`) in your output. If both fail, tell the user the transition name is missing and continue — never block the workflow on it. Skip if the ticket's `state` from step 3 is already an in-progress state.
 
 ### 11. Record the session
 
