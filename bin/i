@@ -228,6 +228,21 @@ function cmdRecall() {
   }
 }
 
+// The breadcrumb's indented child lines (Erledigt, In Arbeit, Nächster Schritt)
+// are what makes a session resumable, so they belong to the block. It ends at
+// the next top-level item, heading or unindented text.
+function lastBreadcrumbBlock(content) {
+  const lines = content.split('\n')
+  const start = lines.findLastIndex(l => /^- .*🔖/.test(l))
+  if (start === -1) return ''
+  const block = [lines[start]]
+  for (const line of lines.slice(start + 1)) {
+    if (line.trim() !== '' && !/^\s+/.test(line)) break
+    block.push(line)
+  }
+  return block.join('\n').trimEnd()
+}
+
 function cmdStatus() {
   const dir = resolveIssuesDir()
   const active = resolveActiveIssue(dir)
@@ -237,8 +252,7 @@ function cmdStatus() {
   const requirements = parseRequirements(content)
   const summary = getSection(content, 'Zusammenfassung') || ''
   const openQuestions = getSection(content, 'Offene Fragen') || ''
-  const breadcrumbs = [...content.matchAll(/^- .*🔖.*$/gm)]
-  const lastBreadcrumb = breadcrumbs.at(-1)?.[0] || ''
+  const lastBreadcrumb = lastBreadcrumbBlock(content)
   console.log(`Aktives Issue: ${fm.key || active.key} — ${fm.title || ''}`)
   const progress = requirements.length ? `  ·  Anforderungen: ${requirements.filter(r => r.checked).length}/${requirements.length}` : ''
   console.log(`Status: ${fm.status}${fm.branch ? `  ·  Branch: ${fm.branch}` : ''}${progress}`)
