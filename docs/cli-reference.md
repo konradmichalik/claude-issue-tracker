@@ -128,10 +128,11 @@ migrated but headless.
 
 ## Internal — called by the four commands, not meant to run standalone
 
-`fetch <ref>`, `sync <ref>`, `attach <ref> --dest <dir>`,
-`post <ref> -f <file>`, `set <ref> <field>=<value>`,
+`init` (creates `.issues/` with its own `.gitignore`), `fetch <ref>`, `sync <ref>`
+(keeps the previous cache as `<key>.prev.json`), `attach <ref> --dest <dir>`,
+`post <ref> -f <file> [--close (GitHub)] [--state <state> (Jira)]`, `set <ref> <field>=<value>`,
 `session-add <ref> <sessionId> <branch>`,
-`report-template --lang <de|en> --kind <k> --json <file>`, and `check-note`
+`report-template --lang <de|en> --kind <fortschritt|progress|abschluss|closing> --json <file>`, and `check-note`
 (the `Stop` hook's own check). Each does exactly one thing for one command —
 `/i:update`'s sync path and `/i:report`'s template rendering, for instance —
 and none of them make sense run in isolation.

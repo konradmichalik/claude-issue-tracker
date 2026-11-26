@@ -17,6 +17,7 @@ import { diffPayloads, renderDiff } from '../lib/diff.js'
 import { renderReport } from '../lib/render.js'
 import { recall } from '../lib/recall.js'
 import { findClaudeIssuesDirs, migrateDir } from '../lib/migrate.js'
+import { localDate } from '../lib/date.js'
 
 const [, , cmd, ...args] = process.argv
 
@@ -166,19 +167,31 @@ function cmdPost() {
   const close = args.includes('--close')
   const stateIdx = args.indexOf('--state')
   const state = stateIdx !== -1 ? args[stateIdx + 1] : null
-  if (!input || !bodyFile) die('Nutzung: i post <ref> -f <datei> [--close] [--state <state>]')
+  if (!input || !bodyFile) die('Nutzung: i post <ref> -f <datei> [--close (github)] [--state <state> (jira)]')
   const ref = resolveRefInput(input)
+  // Reject before anything is posted: a flag the tracker cannot honor must not
+  // end up as a comment without the requested status change.
+  if (ref.tracker === 'jira' && close) die('--close gilt nur für GitHub. Für Jira: --state <state>.')
+  if (ref.tracker === 'github' && state) die('--state gilt nur für Jira. Für GitHub: --close.')
   preflight(ref.tracker)
   if (ref.tracker === 'jira') {
     postJiraComment(ref.key, bodyFile)
-    if (state) moveJiraStatus(ref.key, state)
+    if (state) afterComment(ref, () => moveJiraStatus(ref.key, state), `Statuswechsel nach "${state}"`)
   } else if (ref.tracker === 'github') {
     postGithubComment(ref.owner, ref.repo, ref.number, bodyFile)
-    if (close) closeGithub(ref.owner, ref.repo, ref.number)
+    if (close) afterComment(ref, () => closeGithub(ref.owner, ref.repo, ref.number), 'Schließen')
   } else {
     die(`Schreibzugriff für Tracker "${ref.tracker}" ist nicht implementiert.`)
   }
   console.log(`Gepostet an ${ref.ref}.`)
+}
+
+// The comment is already public at this point. A failure here must say so, or a
+// retry of the whole command posts it twice.
+function afterComment(ref, step, label) {
+  try { step() } catch (e) {
+    die(`Kommentar wurde an ${ref.ref} gepostet, aber ${label} ist fehlgeschlagen: ${e.message}\nNicht erneut posten, nur den Schritt wiederholen.`)
+  }
 }
 
 function cmdMove() {
@@ -308,7 +321,7 @@ function cmdCheckNote() {
   const content = readIssue(dir, active.file)
   // Lokales Datum, nicht UTC: den Eintrag schreibt das Modell mit dem lokalen
   // Datum, ein UTC-Vergleich würde ihn nachts stundenlang übersehen.
-  const today = new Date().toLocaleDateString('sv-SE')
+  const today = localDate()
   const erkenntnisse = getSection(content, 'Erkenntnisse') || ''
   const notedToday = erkenntnisse.split('\n').some(l => l.trim().startsWith(`- ${today}`))
   if (notedToday) return
@@ -340,12 +353,16 @@ function cmdSet() {
   console.log(`${filename}: ${field} = ${value}`)
 }
 
+const REPORT_KINDS = { fortschritt: 'fortschritt', progress: 'fortschritt', abschluss: 'abschluss', closing: 'abschluss' }
+
 function cmdReportTemplate() {
   const langIdx = args.indexOf('--lang')
   const kindIdx = args.indexOf('--kind')
   const jsonIdx = args.indexOf('--json')
   const lang = langIdx !== -1 ? args[langIdx + 1] : 'de'
-  const kind = kindIdx !== -1 ? args[kindIdx + 1] : 'fortschritt'
+  const kindArg = kindIdx !== -1 ? args[kindIdx + 1] : 'fortschritt'
+  const kind = REPORT_KINDS[kindArg]
+  if (!kind) die(`Unbekannte Art "${kindArg}". Erlaubt: ${Object.keys(REPORT_KINDS).join(', ')}.`)
   const jsonFile = jsonIdx !== -1 ? args[jsonIdx + 1] : null
   if (!jsonFile) die('Nutzung: i report-template --lang <de|en> --kind <k> --json <datei>')
   const data = JSON.parse(readFileSync(jsonFile, 'utf-8'))
